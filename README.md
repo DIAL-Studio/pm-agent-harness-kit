@@ -12,9 +12,35 @@ Reusable **Technical Product Manager** agent + skills for AI coding runtimes. To
 
 ## Install (opencode)
 
-### 1. Add the skill via `skills.urls`
+### One-liner (recommended)
 
-Edit (or create) `~/.config/opencode/opencode.json`:
+opencode auto-discovers any `SKILL.md` under `~/.config/opencode/skills/<name>/` and any agent under `~/.config/opencode/agents/`. The installer just copies both files there — **no config editing required**:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/install.sh | bash
+```
+
+Restart opencode, press **Tab**, and `tpm` is there.
+
+### One-liner uninstall
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/uninstall.sh | bash
+```
+
+### Manual install
+
+```bash
+mkdir -p ~/.config/opencode/skills/tpm-artifacts ~/.config/opencode/agents
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/tpm-artifacts/SKILL.md \
+  -o ~/.config/opencode/skills/tpm-artifacts/SKILL.md
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/agents/tpm.md \
+  -o ~/.config/opencode/agents/tpm.md
+```
+
+### Remote discovery (optional, advanced)
+
+If you prefer to keep skills remote rather than vendored locally, point your `~/.config/opencode/opencode.json` at the published manifest:
 
 ```jsonc
 {
@@ -27,26 +53,21 @@ Edit (or create) `~/.config/opencode/opencode.json`:
 }
 ```
 
-opencode will fetch the manifest and register `tpm-artifacts` as an available skill that any agent can load on demand via the `skill` tool.
-
-### 2. Install the TPM agent
-
-Agents in opencode are file-based (no remote URL channel exists in the schema yet), so download the markdown file directly:
+You still need to install the agent file locally (opencode has no remote-agent channel):
 
 ```bash
-mkdir -p ~/.config/opencode/agents
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/agents/tpm.md \
   -o ~/.config/opencode/agents/tpm.md
 ```
 
-### 3. Restart opencode
+### Restart opencode
 
-opencode reads its config once at startup. Quit and reopen the session so the skill URL and the agent file are picked up.
+opencode reads its config once at startup. Quit and reopen the session so newly placed files are picked up.
 
-### 4. Verify
+### Verify
 
-- Press **Tab** → `tpm` should appear as a selectable primary agent.
-- In `tpm` mode, ask it to write a PRD / RFC / RICE ranking — it will load the `tpm-artifacts` skill automatically.
+- Press **Tab** → `tpm` appears as a selectable primary agent.
+- In `tpm` mode, ask it to write a PRD / RFC / RICE ranking — the `tpm-artifacts` skill loads automatically.
 
 ## What the agent does
 
