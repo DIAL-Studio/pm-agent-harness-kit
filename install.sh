@@ -80,6 +80,18 @@ fi
 
 # --- Install ----------------------------------------------------------------
 
+backup_if_exists() {
+  local f="$1"
+  if [[ -f "$f" ]]; then
+    local bak="${f}.bak.$(date +%s)"
+    cp "$f" "$bak"
+    yellow "Existing file backed up: $f -> $bak"
+  fi
+}
+
+backup_if_exists "$SKILL_DIR/SKILL.md"
+backup_if_exists "$AGENT_DIR/tpm.md"
+
 mv "$tmp_skill" "$SKILL_DIR/SKILL.md"
 mv "$tmp_agent"  "$AGENT_DIR/tpm.md"
 
@@ -93,7 +105,7 @@ cat <<EOF
 
 Next:
   1. If opencode was running, quit and restart it so it re-scans skills/agents.
-  2. Press Tab to switch to the ${cyan}tpm${green} primary agent.
+  2. Press Tab to switch to the tpm primary agent.
   3. In tpm mode, ask for a PRD / RICE / RFC — the skill loads automatically.
 
 To uninstall:
