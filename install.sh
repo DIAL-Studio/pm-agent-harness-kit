@@ -246,7 +246,7 @@ fi
 cat <<EOF
 
 $(green "tpm-tools installed successfully!")
-$(green "  Skills:   $SKILL_DIR/ (56 skills)")
+$(green "  Skills:   $SKILL_DIR/ (59 skills)")
 $(green "  Agent:    $AGENT_FILE")
 
 Next:

@@ -71,12 +71,12 @@ case "$RUNTIME" in
       feature-investment-advisor finance-based-pricing-advisor
       finance-metrics-quickref growth-plg-advisor jobs-to-be-done
       lean-ux-canvas opportunity-solution-tree organic-growth-advisor
-      pestel-analysis pol-probe-advisor pol-probe positioning-statement
+      pestel-analysis pm-skill-creator pol-probe-advisor pol-probe positioning-statement
       positioning-workshop prd-development press-release prioritization-advisor
       problem-framing-canvas problem-statement product-sense-interview-answer
       product-strategy-session proto-persona recommendation-canvas
-      roadmap-planning saas-economics-efficiency-metrics
-      saas-revenue-growth-metrics stakeholder-engagement-advisor
+      roadmap-planning       saas-economics-efficiency-metrics
+      saas-revenue-growth-metrics skill-authoring-workflow stakeholder-engagement-advisor
       stakeholder-identification stakeholder-mapping storyboard
       strategy-canvas tam-sam-som-calculator tpm-artifacts user-story
       user-story-mapping user-story-mapping-workshop user-story-splitting
