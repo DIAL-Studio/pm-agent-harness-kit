@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# tpm-tools installer — copies the TPM agent and tpm-artifacts skill into the
+# tpm-tools installer — copies the TPM agent and full skill library into the
 # discovery paths of the chosen runtime. No config file edits required.
 #
 # Usage (default runtime: opencode):
@@ -11,7 +11,7 @@
 #   ./install.sh --list-runtimes
 #
 # Pin a branch/version:
-#   TPM_TOOLS_BRANCH=v1.0.2 ./install.sh --runtime opencode
+#   TPM_TOOLS_BRANCH=v1.0.0 ./install.sh --runtime opencode
 #
 # Override the config dir (opencode only):
 #   OPENCODE_CONFIG_DIR=/custom/path ./install.sh --runtime opencode
@@ -23,6 +23,7 @@ set -euo pipefail
 REPO="DIAL-Studio/tpm-tools"
 BRANCH="${TPM_TOOLS_BRANCH:-main}"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
+ARCHIVE_URL="https://github.com/${REPO}/archive/${BRANCH}.tar.gz"
 RUNTIME="${TPM_TOOLS_RUNTIME:-opencode}"
 
 # --- Helpers ----------------------------------------------------------------
@@ -35,8 +36,6 @@ die()    { red "error: $*" >&2; exit 1; }
 has()    { command -v "$1" >/dev/null 2>&1; }
 
 # --- Runtime registry -------------------------------------------------------
-# Format per row: <id> <status> <default_config_root> <display>
-# Status is one of: supported | planned
 RUNTIME_TABLE=(
   "opencode   supported   \$HOME/.config/opencode   opencode (default)"
   "claude     planned     \$HOME/.claude             Claude Code"
@@ -62,24 +61,23 @@ EOF
 
 usage() {
   cat <<EOF
-tpm-tools installer
+tpm-tools installer — TPM agent + full skill library
 
 Usage:
   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/install.sh | bash
   curl -fsSL .../install.sh | TPM_TOOLS_RUNTIME=opencode bash
   ./install.sh --runtime opencode
   ./install.sh --list-runtimes
-  ./install.sh --help
 
 Flags:
-  --runtime <id>       Choose runtime (default: opencode; see --list-runtimes)
+  --runtime <id>       Choose runtime (default: opencode)
   --list-runtimes      Print all known runtimes and exit
   -h, --help           Show this help
 
 Environment:
-  TPM_TOOLS_RUNTIME    Same as --runtime (useful for curl|bash)
-  TPM_TOOLS_BRANCH     Pin a git ref (default: main ; e.g. v1.0.2)
-  OPENCODE_CONFIG_DIR  Override opencode config root (default: ~/.config/opencode)
+  TPM_TOOLS_RUNTIME      Same as --runtime (useful for curl|bash)
+  TPM_TOOLS_BRANCH       Pin a git ref (default: main)
+  OPENCODE_CONFIG_DIR    Override opencode config root (default: ~/.config/opencode)
 EOF
 }
 
@@ -111,17 +109,18 @@ if ! has curl; then
   die "curl is required. Install it and re-run."
 fi
 
-# --- Resolve runtime --------------------------------------------------------
+if ! has tar; then
+  die "tar is required. Install it and re-run."
+fi
 
-SKILL_URL="$BASE_URL/skills/tpm-artifacts/SKILL.md"
+# --- Resolve runtime --------------------------------------------------------
 
 case "$RUNTIME" in
   opencode)
     OC_ROOT="${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}"
-    SKILL_DIR="$OC_ROOT/skills/tpm-artifacts"
+    SKILL_DIR="$OC_ROOT/skills"
     AGENT_DIR="$OC_ROOT/agents"
     AGENT_FILE="$AGENT_DIR/tpm.md"
-    AGENT_URL="$BASE_URL/agents/tpm.md"
     BINARY_NAME="opencode"
     BINARY_URL="https://opencode.ai"
     VERIFY_HINT="Press Tab to switch to the tpm primary agent."
@@ -149,59 +148,111 @@ if ! has "$BINARY_NAME"; then
   yellow "         Files will still be installed; install $BINARY_NAME from $BINARY_URL to use them."
 fi
 
-# --- Fetch ------------------------------------------------------------------
+# --- Download archive -------------------------------------------------------
+
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
+
+cyan "Downloading skills library ($BRANCH branch)..."
+curl -fsSL "$ARCHIVE_URL" -o "$tmp_dir/repo.tar.gz" \
+  || die "Failed to download archive from $ARCHIVE_URL"
+
+cyan "Extracting..."
+tar xzf "$tmp_dir/repo.tar.gz" -C "$tmp_dir" \
+  || die "Failed to extract archive."
+
+EXTRACTED_DIR="$tmp_dir/tpm-tools-${BRANCH}"
+
+# Guard: verify extraction produced a directory
+if [[ ! -d "$EXTRACTED_DIR" ]]; then
+  # try with main -> main rename or alternative extraction patterns
+  EXTRACTED_DIR="$tmp_dir/$(ls "$tmp_dir" | grep -v 'repo.tar.gz' | head -1)"
+fi
+if [[ ! -d "$EXTRACTED_DIR" ]]; then
+  die "Extraction failed — expected directory not found."
+fi
+
+# --- Install skills ---------------------------------------------------------
 
 mkdir -p "$SKILL_DIR" "$AGENT_DIR"
 
-tmp_skill="$(mktemp)"
-tmp_agent="$(mktemp)"
-trap 'rm -f "$tmp_skill" "$tmp_agent"' EXIT
-
-cyan "Downloading SKILL.md..."
-curl -fsSL "$SKILL_URL" -o "$tmp_skill" \
-  || die "Failed to fetch SKILL.md from $BASE_URL"
-
-cyan "Downloading agent file (tpm.md)..."
-curl -fsSL "$AGENT_URL" -o "$tmp_agent" \
-  || die "Failed to fetch tpm.md from $BASE_URL"
-
-# Guard: validate frontmatter so a 404 page does not silently become a "skill"
-if [[ ! -s "$tmp_skill" ]] || ! grep -q '^---' "$tmp_skill"; then
-  die "SKILL.md download is empty or missing frontmatter. Check the URL or branch."
-fi
-if [[ ! -s "$tmp_agent" ]] || ! grep -q '^---' "$tmp_agent"; then
-  die "Agent file download is empty or missing frontmatter. Check the URL or branch."
-fi
-
-# --- Install ----------------------------------------------------------------
-
-backup_if_exists() {
-  local f="$1"
-  if [[ -f "$f" ]]; then
-    local bak="${f}.bak.$(date +%s)"
-    cp "$f" "$bak"
-    yellow "Existing file backed up: $f -> $bak"
+backup_path() {
+  local src="$1"
+  if [[ -e "$src" ]]; then
+    local bak="${src}.bak.$(date +%s)"
+    mv "$src" "$bak"
+    yellow "Backed up existing: $src -> $bak"
   fi
 }
 
-backup_if_exists "$SKILL_DIR/SKILL.md"
-backup_if_exists "$AGENT_FILE"
+# Remove old tpm-artifacts if exists (replaced by full library)
+backup_path "$SKILL_DIR/tpm-artifacts"
 
-mv "$tmp_skill" "$SKILL_DIR/SKILL.md"
-mv "$tmp_agent"  "$AGENT_FILE"
+if [[ -d "$EXTRACTED_DIR/skills" ]]; then
+  skill_count="$(ls "$EXTRACTED_DIR/skills" | wc -l | tr -d ' ')"
+  cyan "Installing $skill_count skills..."
 
-green "Installed:"
-green "  $SKILL_DIR/SKILL.md"
-green "  $AGENT_FILE"
+  for skill_dir in "$EXTRACTED_DIR/skills"/*/; do
+    skill_name="$(basename "$skill_dir")"
+    target="$SKILL_DIR/$skill_name"
+    backup_path "$target"
+    cp -r "$skill_dir" "$target"
+  done
+  green "Skills installed to $SKILL_DIR/"
+else
+  die "No skills/ directory found in the archive."
+fi
 
-# --- Post-install hints ------------------------------------------------------
+# --- Install agent ----------------------------------------------------------
+
+backup_path "$AGENT_FILE"
+
+if [[ -f "$EXTRACTED_DIR/agents/tpm.md" ]]; then
+  cp "$EXTRACTED_DIR/agents/tpm.md" "$AGENT_FILE"
+  green "Agent installed: $AGENT_FILE"
+else
+  die "Agent file not found in archive."
+fi
+
+# --- Install config snippet (optional, user-facing) -------------------------
+
+CONFIG_SNIPPET="$OC_ROOT/opencode-tpm-tools.json"
+if [[ ! -f "$OC_ROOT/opencode.json" ]]; then
+  cat > "$CONFIG_SNIPPET" <<- 'CFG'
+{
+  "agent": {
+    "plan": {
+      "permission": {
+        "skill": {
+          "tpm-*": "allow",
+          "prd-*": "allow",
+          "user-story*": "allow",
+          "stakeholder-*": "allow",
+          "experiment-*": "allow",
+          "growth-*": "allow",
+          "strategy-*": "allow"
+        }
+      }
+    }
+  }
+}
+CFG
+  green "Config snippet created: $CONFIG_SNIPPET"
+  yellow "Merge this into your opencode.json to restrict skills to the plan agent."
+fi
+
+# --- Post-install hints -----------------------------------------------------
 
 cat <<EOF
+
+$(green "tpm-tools installed successfully!")
+$(green "  Skills:   $SKILL_DIR/ (56 skills)")
+$(green "  Agent:    $AGENT_FILE")
 
 Next:
   1. If $BINARY_NAME was running, quit and restart it so it re-scans.
   2. $VERIFY_HINT
-  3. Ask the tpm agent for a PRD / RICE / RFC — the skill loads on demand.
+  3. Ask the tpm agent for anything — the full skill library is available.
 
 To uninstall:
   curl -fsSL $BASE_URL/uninstall.sh | TPM_TOOLS_RUNTIME=$RUNTIME bash

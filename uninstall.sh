@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# tpm-tools uninstaller — removes the agent and skill installed by install.sh
-# for the chosen runtime (default: opencode).
+# tpm-tools uninstaller — removes the agent and all skills installed by install.sh
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/uninstall.sh | bash
@@ -10,7 +9,6 @@
 set -euo pipefail
 
 REPO="DIAL-Studio/tpm-tools"
-BRANCH="${TPM_TOOLS_BRANCH:-main}"
 RUNTIME="${TPM_TOOLS_RUNTIME:-opencode}"
 
 green()  { printf "\033[32m%s\033[0m\n" "$*"; }
@@ -58,7 +56,37 @@ done
 case "$RUNTIME" in
   opencode)
     OC_ROOT="${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}"
-    TARGETS=("$OC_ROOT/skills/tpm-artifacts" "$OC_ROOT/agents/tpm.md")
+    SKILL_DIR="$OC_ROOT/skills"
+    AGENT_FILE="$OC_ROOT/agents/tpm.md"
+    CONFIG_SNIPPET="$OC_ROOT/opencode-tpm-tools.json"
+    SKILL_NAMES=(
+      acquisition-channel-advisor agent-orchestration-advisor
+      ai-shaped-readiness-advisor altitude-horizon-framework
+      business-health-diagnostic company-intel company-research
+      context-engineering-advisor customer-journey-map
+      customer-journey-mapping-workshop derisk-measurement-advisor
+      director-readiness-advisor discovery-interview-prep discovery-process
+      eol-message epic-breakdown-advisor epic-hypothesis
+      executive-onboarding-playbook experiment-designer
+      feature-investment-advisor finance-based-pricing-advisor
+      finance-metrics-quickref growth-plg-advisor jobs-to-be-done
+      lean-ux-canvas opportunity-solution-tree organic-growth-advisor
+      pestel-analysis pol-probe-advisor pol-probe positioning-statement
+      positioning-workshop prd-development press-release prioritization-advisor
+      problem-framing-canvas problem-statement product-sense-interview-answer
+      product-strategy-session proto-persona recommendation-canvas
+      roadmap-planning saas-economics-efficiency-metrics
+      saas-revenue-growth-metrics stakeholder-engagement-advisor
+      stakeholder-identification stakeholder-mapping storyboard
+      strategy-canvas tam-sam-som-calculator tpm-artifacts user-story
+      user-story-mapping user-story-mapping-workshop user-story-splitting
+      vp-cpo-readiness-advisor workshop-facilitation
+    )
+    TARGETS=("$AGENT_FILE")
+    for name in "${SKILL_NAMES[@]}"; do
+      TARGETS+=("$SKILL_DIR/$name")
+    done
+    TARGETS+=("$CONFIG_SNIPPET")
     ;;
   claude|copilot|cursor)
     red "runtime '$RUNTIME' is planned but not yet supported."
@@ -71,15 +99,20 @@ case "$RUNTIME" in
     die "Unknown runtime: '$RUNTIME'." ;;
 esac
 
+count_removed=0
 for t in "${TARGETS[@]}"; do
   if [[ -e "$t" ]]; then
     rm -rf "$t"
     green "Removed: $t"
-  else
-    yellow_msg="  (not present) $t"
-    printf "\033[33m%s\033[0m\n" "$yellow_msg"
+    count_removed=$((count_removed + 1))
   fi
 done
+
+if [[ $count_removed -eq 0 ]]; then
+  yellow "Nothing to remove."
+else
+  green "Removed $count_removed items."
+fi
 
 green "Restart '$RUNTIME' to reflect the change."
 green "Done."
