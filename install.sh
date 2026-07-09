@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# tpm-tools installer — copies the TPM agent and full skill library into the
+# pm-agent-harness-kit installer — copies the TPM agent and full skill library into the
 # discovery paths of the chosen runtime. No config file edits required.
 #
 # Usage (default runtime: opencode):
-#   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
 #
 # Pick a runtime:
 #   curl -fsSL .../install.sh | TPM_TOOLS_RUNTIME=opencode bash
@@ -20,7 +20,7 @@ set -euo pipefail
 
 # --- Config -----------------------------------------------------------------
 
-REPO="DIAL-Studio/tpm-tools"
+REPO="DIAL-Studio/pm-agent-harness-kit"
 BRANCH="${TPM_TOOLS_BRANCH:-main}"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 ARCHIVE_URL="https://github.com/${REPO}/archive/${BRANCH}.tar.gz"
@@ -55,16 +55,16 @@ list_runtimes() {
 
 Only "supported" runtimes will install. "planned" runtimes print this list
 and exit non-zero. Vote or track progress at:
-  https://github.com/DIAL-Studio/tpm-tools/issues
+  https://github.com/DIAL-Studio/pm-agent-harness-kit/issues
 EOF
 }
 
 usage() {
   cat <<EOF
-tpm-tools installer — TPM agent + full skill library
+pm-agent-harness-kit installer — TPM agent + full skill library
 
 Usage:
-  curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
   curl -fsSL .../install.sh | TPM_TOOLS_RUNTIME=opencode bash
   ./install.sh --runtime opencode
   ./install.sh --list-runtimes
@@ -139,7 +139,7 @@ case "$RUNTIME" in
     ;;
 esac
 
-cyan "Installing tpm-tools for runtime '$RUNTIME' into $OC_ROOT/"
+cyan "Installing pm-agent-harness-kit for runtime '$RUNTIME' into $OC_ROOT/"
 
 # --- Soft presence check on the runtime binary ------------------------------
 
@@ -161,7 +161,7 @@ cyan "Extracting..."
 tar xzf "$tmp_dir/repo.tar.gz" -C "$tmp_dir" \
   || die "Failed to extract archive."
 
-EXTRACTED_DIR="$tmp_dir/tpm-tools-${BRANCH}"
+EXTRACTED_DIR="$tmp_dir/pm-agent-harness-kit-${BRANCH}"
 
 # Guard: verify extraction produced a directory
 if [[ ! -d "$EXTRACTED_DIR" ]]; then
@@ -216,7 +216,7 @@ fi
 
 # --- Install config snippet (optional, user-facing) -------------------------
 
-CONFIG_SNIPPET="$OC_ROOT/opencode-tpm-tools.json"
+CONFIG_SNIPPET="$OC_ROOT/opencode-pm-agent-harness-kit.json"
 if [[ ! -f "$OC_ROOT/opencode.json" ]]; then
   cat > "$CONFIG_SNIPPET" <<- 'CFG'
 {
@@ -245,7 +245,7 @@ fi
 
 cat <<EOF
 
-$(green "tpm-tools installed successfully!")
+$(green "pm-agent-harness-kit installed successfully!")
 $(green "  Skills:   $SKILL_DIR/ (59 skills)")
 $(green "  Agent:    $AGENT_FILE")
 

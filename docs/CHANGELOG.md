@@ -888,7 +888,7 @@ See [LICENSE](LICENSE) for full details.
 
 ---
 
-**v0.80 — July 9, 2026 (tpm-tools / PM-AHK)**
+**v0.80 — July 9, 2026 (pm-agent-harness-kit / PM-AHK)**
 
 Highlights in this release:
 - Decomposed monolithic `tpm.md` into a 7-agent PM-AHK harness following the agent-harness-kit pipeline pattern

@@ -4,297 +4,297 @@
     {
       "name": "acquisition-channel-advisor",
       "description": "Evaluate acquisition channels using unit economics, customer quality, and scalability.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/acquisition-channel-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/acquisition-channel-advisor/SKILL.md"
     },
     {
       "name": "agent-orchestration-advisor",
       "description": "Design multi-agent AI workflows with clear boundaries, handoffs, and monitoring.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/agent-orchestration-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/agent-orchestration-advisor/SKILL.md"
     },
     {
       "name": "ai-shaped-readiness-advisor",
       "description": "Assess whether your product work is AI-first or AI-shaped.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/ai-shaped-readiness-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/ai-shaped-readiness-advisor/SKILL.md"
     },
     {
       "name": "altitude-horizon-framework",
       "description": "Understand the PM-to-Director transition through altitude and horizon thinking.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/altitude-horizon-framework/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/altitude-horizon-framework/SKILL.md"
     },
     {
       "name": "business-health-diagnostic",
       "description": "Diagnose SaaS business health across growth, retention, efficiency, and capital.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/business-health-diagnostic/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/business-health-diagnostic/SKILL.md"
     },
     {
       "name": "company-intel",
       "description": "Research a company, industry, or competitor set using web search and seven analytical lenses.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/company-intel/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/company-intel/SKILL.md"
     },
     {
       "name": "company-research",
       "description": "Create a company research brief with executive quotes, product strategy, and org context.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/company-research/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/company-research/SKILL.md"
     },
     {
       "name": "context-engineering-advisor",
       "description": "Diagnose context stuffing vs. context engineering and fix AI context strategy.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/context-engineering-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/context-engineering-advisor/SKILL.md"
     },
     {
       "name": "customer-journey-map",
       "description": "Create a customer journey map covering stages, touchpoints, emotions, and metrics.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/customer-journey-map/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/customer-journey-map/SKILL.md"
     },
     {
       "name": "customer-journey-mapping-workshop",
       "description": "Facilitate a customer journey mapping workshop with cross-functional teams.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/customer-journey-mapping-workshop/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/customer-journey-mapping-workshop/SKILL.md"
     },
     {
       "name": "derisk-measurement-advisor",
       "description": "De-risk product features and AI ideas by scanning for internal and external risks.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/derisk-measurement-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/derisk-measurement-advisor/SKILL.md"
     },
     {
       "name": "director-readiness-advisor",
       "description": "Coach PMs through the Director transition with adaptive questioning.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/director-readiness-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/director-readiness-advisor/SKILL.md"
     },
     {
       "name": "discovery-interview-prep",
       "description": "Plan Mom Test-style customer discovery interviews from research goals.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/discovery-interview-prep/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/discovery-interview-prep/SKILL.md"
     },
     {
       "name": "discovery-process",
       "description": "Run a complete discovery cycle: frame, research, synthesize, validate.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/discovery-process/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/discovery-process/SKILL.md"
     },
     {
       "name": "eol-message",
       "description": "Draft an end-of-life / sunset announcement for a product or feature.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/eol-message/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/eol-message/SKILL.md"
     },
     {
       "name": "epic-breakdown-advisor",
       "description": "Split large epics using Richard Lawrence's proven splitting patterns.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/epic-breakdown-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/epic-breakdown-advisor/SKILL.md"
     },
     {
       "name": "epic-hypothesis",
       "description": "Frame an epic as a testable hypothesis with success criteria.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/epic-hypothesis/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/epic-hypothesis/SKILL.md"
     },
     {
       "name": "executive-onboarding-playbook",
       "description": "30-60-90 day playbook for VP/CPO transitions with diagnostic tools.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/executive-onboarding-playbook/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/executive-onboarding-playbook/SKILL.md"
     },
     {
       "name": "experiment-designer",
       "description": "Design A/B experiments with sample size calculation and power analysis.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/experiment-designer/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/experiment-designer/SKILL.md"
     },
     {
       "name": "feature-investment-advisor",
       "description": "Make build/don't-build decisions using revenue impact, cost, and ROI.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/feature-investment-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/feature-investment-advisor/SKILL.md"
     },
     {
       "name": "finance-based-pricing-advisor",
       "description": "Evaluate pricing changes by modeling ARPU, churn risk, NRR, and payback.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/finance-based-pricing-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/finance-based-pricing-advisor/SKILL.md"
     },
     {
       "name": "finance-metrics-quickref",
       "description": "Quick reference for SaaS finance metrics formulas and industry benchmarks.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/finance-metrics-quickref/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/finance-metrics-quickref/SKILL.md"
     },
     {
       "name": "growth-plg-advisor",
       "description": "Design product-led growth strategies: activation, virality, freemium conversion.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/growth-plg-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/growth-plg-advisor/SKILL.md"
     },
     {
       "name": "jobs-to-be-done",
       "description": "Capture customer jobs, pains, and gains using the JTBD framework.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/jobs-to-be-done/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/jobs-to-be-done/SKILL.md"
     },
     {
       "name": "lean-ux-canvas",
       "description": "Run a Lean UX Canvas v2 session to map business problem to validated learning.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/lean-ux-canvas/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/lean-ux-canvas/SKILL.md"
     },
     {
       "name": "opportunity-solution-tree",
       "description": "Build an opportunity solution tree from outcomes to solutions to tests.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/opportunity-solution-tree/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/opportunity-solution-tree/SKILL.md"
     },
     {
       "name": "organic-growth-advisor",
       "description": "Triage growth constraints using the McKinsey Growth Pyramid framework.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/organic-growth-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/organic-growth-advisor/SKILL.md"
     },
     {
       "name": "pestel-analysis",
       "description": "Analyze Political, Economic, Social, Technological, Environmental, and Legal forces.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/pestel-analysis/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/pestel-analysis/SKILL.md"
     },
     {
       "name": "pm-skill-creator",
       "description": "Design repo-compliant PM skills via guided conversation (meta-skill).",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/pm-skill-creator/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/pm-skill-creator/SKILL.md"
     },
     {
       "name": "pol-probe",
       "description": "Document a lightweight validation experiment before building.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/pol-probe/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/pol-probe/SKILL.md"
     },
     {
       "name": "pol-probe-advisor",
       "description": "Choose the right Proof-of-Life probe type based on hypothesis and risk level.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/pol-probe-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/pol-probe-advisor/SKILL.md"
     },
     {
       "name": "positioning-statement",
       "description": "Write a Geoffrey Moore-style positioning statement for your product.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/positioning-statement/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/positioning-statement/SKILL.md"
     },
     {
       "name": "positioning-workshop",
       "description": "Facilitate a positioning workshop to align teams on market position.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/positioning-workshop/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/positioning-workshop/SKILL.md"
     },
     {
       "name": "prd-development",
       "description": "Build a structured PRD connecting problem, users, solution, and success criteria.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/prd-development/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/prd-development/SKILL.md"
     },
     {
       "name": "press-release",
       "description": "Write an Amazon-style Working Backwards press release for a product idea.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/press-release/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/press-release/SKILL.md"
     },
     {
       "name": "prioritization-advisor",
       "description": "Choose the right prioritization framework: RICE, ICE, Kano, or alternatives.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/prioritization-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/prioritization-advisor/SKILL.md"
     },
     {
       "name": "problem-framing-canvas",
       "description": "Apply MITRE's Look Inward / Look Outward / Reframe problem framing sequence.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/problem-framing-canvas/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/problem-framing-canvas/SKILL.md"
     },
     {
       "name": "problem-statement",
       "description": "Write a user-centered problem statement with evidence and impact.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/problem-statement/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/problem-statement/SKILL.md"
     },
     {
       "name": "product-sense-interview-answer",
       "description": "Structure answers to open-ended product-sense interview questions.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/product-sense-interview-answer/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/product-sense-interview-answer/SKILL.md"
     },
     {
       "name": "product-strategy-session",
       "description": "Run a comprehensive product strategy session from positioning to roadmap.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/product-strategy-session/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/product-strategy-session/SKILL.md"
     },
     {
       "name": "proto-persona",
       "description": "Create an assumption-based persona from available user research.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/proto-persona/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/proto-persona/SKILL.md"
     },
     {
       "name": "recommendation-canvas",
       "description": "Evaluate AI product ideas using outcome, hypothesis, risk, and value assessment.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/recommendation-canvas/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/recommendation-canvas/SKILL.md"
     },
     {
       "name": "roadmap-planning",
       "description": "Build a strategic roadmap: inputs, epics, prioritize, sequence, communicate.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/roadmap-planning/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/roadmap-planning/SKILL.md"
     },
     {
       "name": "saas-economics-efficiency-metrics",
       "description": "Calculate SaaS unit economics, capital efficiency, and operating leverage.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/saas-economics-efficiency-metrics/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/saas-economics-efficiency-metrics/SKILL.md"
     },
     {
       "name": "saas-revenue-growth-metrics",
       "description": "Master revenue and retention metrics: MRR, ARR, churn, NRR, quick ratio.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/saas-revenue-growth-metrics/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/saas-revenue-growth-metrics/SKILL.md"
     },
     {
       "name": "skill-authoring-workflow",
       "description": "Turn rough notes into a compliant, publish-ready PM skill.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/skill-authoring-workflow/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/skill-authoring-workflow/SKILL.md"
     },
     {
       "name": "stakeholder-engagement-advisor",
       "description": "Plan per-stakeholder engagement with tailored messaging and cadence.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/stakeholder-engagement-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/stakeholder-engagement-advisor/SKILL.md"
     },
     {
       "name": "stakeholder-identification",
       "description": "Run a comprehensive stakeholder brainstorm with equity and bias checks.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/stakeholder-identification/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/stakeholder-identification/SKILL.md"
     },
     {
       "name": "stakeholder-mapping",
       "description": "Map stakeholders on Power\u00d7Interest and Impact\u00d7Power grids.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/stakeholder-mapping/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/stakeholder-mapping/SKILL.md"
     },
     {
       "name": "storyboard",
       "description": "Create a 6-frame storyboard from problem to solution for stakeholder alignment.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/storyboard/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/storyboard/SKILL.md"
     },
     {
       "name": "strategy-canvas",
       "description": "Complete a 9-section product strategy canvas: vision, segments, value props, tradeoffs, metrics, defensibility.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/strategy-canvas/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/strategy-canvas/SKILL.md"
     },
     {
       "name": "tam-sam-som-calculator",
       "description": "Calculate TAM, SAM, and SOM for a product with defensible market estimates.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/tam-sam-som-calculator/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/tam-sam-som-calculator/SKILL.md"
     },
     {
       "name": "tpm-artifacts",
       "description": "Templates and scaffolds for product management deliverables \u2014 PRDs, one-pagers, RFCs, RICE prioritization, roadmap entries, sliced epics with acceptance criteria, and experiment designs.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/tpm-artifacts/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/tpm-artifacts/SKILL.md"
     },
     {
       "name": "user-story",
       "description": "Write clear user stories with Mike Cohn format and Gherkin acceptance criteria.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/user-story/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/user-story/SKILL.md"
     },
     {
       "name": "user-story-mapping",
       "description": "Visualize the user journey as a hierarchical map of activities, steps, and tasks.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/user-story-mapping/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/user-story-mapping/SKILL.md"
     },
     {
       "name": "user-story-mapping-workshop",
       "description": "Facilitate a user story mapping workshop with release slicing.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/user-story-mapping-workshop/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/user-story-mapping-workshop/SKILL.md"
     },
     {
       "name": "user-story-splitting",
       "description": "Split large stories into smaller, independently deliverable stories.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/user-story-splitting/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/user-story-splitting/SKILL.md"
     },
     {
       "name": "vp-cpo-readiness-advisor",
       "description": "Coach Directors through the VP/CPO transition with adaptive questions.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/vp-cpo-readiness-advisor/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/vp-cpo-readiness-advisor/SKILL.md"
     },
     {
       "name": "workshop-facilitation",
       "description": "Canonical facilitation pattern for interactive skills and workshops.",
-      "url": "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/skills/workshop-facilitation/SKILL.md"
+      "url": "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/skills/workshop-facilitation/SKILL.md"
     }
   ]
 }

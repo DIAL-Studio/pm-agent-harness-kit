@@ -5,7 +5,7 @@
 | # | Source | Type | Skills | Orientation |
 |---|--------|------|--------|-------------|
 | A | `deanpeters/Product-Manager-Skills` | Modular (55 skills) | 55 discrete SKILL.md | Claude Code first, multi-runtime |
-| B | `DIAL-Studio/tpm-tools` | Agent + skill (1 agent + 1 skill) | `tpm.md` agent, `tpm-artifacts` skill | opencode first |
+| B | `DIAL-Studio/pm-agent-harness-kit` | Agent + skill (1 agent + 1 skill) | `tpm.md` agent, `tpm-artifacts` skill | opencode first |
 | C | `skills.sh/alirezarezvani/claude-skills` | Orchestrator (1 meta-skill → 16 sub-skills) | Orchestrator + RICE, OKRs, UX, design, teardown, analytics, experiments, discovery, roadmap, landing page, SaaS scaffold, Apple HIG, code-to-PRD | Claude Code |
 | D | `skills.sh/phuryn/pm-skills` | Component (1 skill) | 9-section Product Strategy Canvas (vision, segments, costs, value props, tradeoffs, metrics, growth, capabilities, defensibility) | Claude Code |
 | E | `skills.sh/digidai/product-manager-skills` | Monolithic (1 skill) | 7 domains: Discovery, Strategy, Delivery, Finance, Career, Growth/PLG, AI Product; PM Sprint workflow; coaching mode | Claude Code |
@@ -112,12 +112,12 @@
 
 ## Gap Analysis: What deanpeters is MISSING (vs B+C+D+E)
 
-### From DIAL-Studio/tpm-tools (B)
+### From DIAL-Studio/pm-agent-harness-kit (B)
 | Gap | Priority | Notes |
 |-----|----------|-------|
 | **Agent definition** (`agents/tpm.md`) | High | deanpeters has no opencode agent files. Port tpm.md: TPM persona, operating principles, workflow. |
 | **Well-known manifest** (`.well-known/skills.json`) | High | deanpeters has `.claude-plugin/` but no opencode manifest for URLs-based discovery. |
-| **Install/uninstall scripts** | Medium | deanpeters has Bash release scripts; tpm-tools has cleaner `install.sh` / `uninstall.sh` |
+| **Install/uninstall scripts** | Medium | deanpeters has Bash release scripts; pm-agent-harness-kit has cleaner `install.sh` / `uninstall.sh` |
 
 ### From alirezarezvani (C)
 | Gap | Priority | Notes |
@@ -147,7 +147,7 @@
 
 ## Recommendations for DIAL-Studio/Product-Manager-Skills (fork)
 
-### Phase 1 — Port from tpm-tools (high value, low effort)
+### Phase 1 — Port from pm-agent-harness-kit (high value, low effort)
 These are things our org already owns but lives in a separate repo:
 
 | Item | Action |
@@ -186,17 +186,17 @@ New skills to create:
 | `catalog/comparison.md` | This document — commit to fork as reference |
 | `docs\INSTALL-OPENCODE.md` | Already created in the PR |
 | Cross-reference table | Map each new skill back to its source inspiration |
-| License alignment | Ensure new skills match `CC BY-NC-SA 4.0` (deanpeters) or `MIT` (tpm-tools) |
+| License alignment | Ensure new skills match `CC BY-NC-SA 4.0` (deanpeters) or `MIT` (pm-agent-harness-kit) |
 
 ---
 
 ## Structural Recommendations
 
-### 1. Keep tpm-tools as a separate "starter pack" repo
-The fork (Product-Manager-Skills) is the full 55+ skills library. tpm-tools can remain as a lightweight entry point with just the agent + one skill, referencing the fork as the full library.
+### 1. Keep pm-agent-harness-kit as a separate "starter pack" repo
+The fork (Product-Manager-Skills) is the full 55+ skills library. pm-agent-harness-kit can remain as a lightweight entry point with just the agent + one skill, referencing the fork as the full library.
 
 ### 2. Add an `agents/` dir to the fork
-This is the deanpeters repo's biggest gap for opencode users. tpm-tools now ships a 7-agent PM-AHK harness (pm-lead, pm-explorer, pm-strategist, pm-builder, pm-reviewer, pm-coach, pm-smith) modeled on the agent-harness-kit pipeline pattern. Porting this architecture would make the fork opencode-native with full pipeline support.
+This is the deanpeters repo's biggest gap for opencode users. pm-agent-harness-kit now ships a 7-agent PM-AHK harness (pm-lead, pm-explorer, pm-strategist, pm-builder, pm-reviewer, pm-coach, pm-smith) modeled on the agent-harness-kit pipeline pattern. Porting this architecture would make the fork opencode-native with full pipeline support.
 
 ### 3. Add `.well-known/skills.json`
 Opencode supports URL-based skill discovery. Adding this manifest allows `skills.urls` in opencode.json to install skills directly from the repo.
@@ -209,7 +209,7 @@ Use the `skill-authoring-workflow` (already in deanpeters) and `pm-skill-creator
 ## Data Sources
 
 - deanpeters/Product-Manager-Skills: https://github.com/deanpeters/Product-Manager-Skills
-- DIAL-Studio/tpm-tools: https://github.com/DIAL-Studio/tpm-tools
+- DIAL-Studio/pm-agent-harness-kit: https://github.com/DIAL-Studio/pm-agent-harness-kit
 - alirezarezvani product-skills: https://www.skills.sh/alirezarezvani/claude-skills/product-skills
 - phuryn pm-skills: https://www.skills.sh/phuryn/pm-skills/product-strategy
 - deanpeters prd-development: https://www.skills.sh/deanpeters/product-manager-skills/prd-development

@@ -1,4 +1,4 @@
-# tpm-tools
+# pm-agent-harness-kit
 
 > **PM-AHK — Agent Harness Kit for Product Managers.**  
 > 7 specialized PM agents in a pipeline + 59 skills. Modeled on [agent-harness-kit](https://github.com/enmanuelmag/agent-harness-kit).  
@@ -166,7 +166,7 @@ Track progress: [docs/ROADMAP.md](docs/ROADMAP.md)
 Installs the PM-AHK agents + all 59 skills:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
 ```
 
 **After install:** Restart opencode, press **Tab**, and `pm-lead` is there with the full pipeline and skill library.
@@ -190,7 +190,7 @@ OPENCODE_CONFIG_DIR=/custom/path ./install.sh --runtime opencode
 ### One-liner uninstall
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/uninstall.sh | bash
 ```
 
 ### Remote discovery (optional, for advanced users)
@@ -202,7 +202,7 @@ If you prefer to keep skills remote rather than vendored locally:
   "$schema": "https://opencode.ai/config.json",
   "skills": {
     "urls": [
-      "https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/.well-known/skills.json"
+      "https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/.well-known/skills.json"
     ]
   }
 }
@@ -212,7 +212,7 @@ Then install the agents locally (opencode has no remote-agent channel):
 
 ```bash
 # Install all 7 agents
-curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/agents/pm-lead.md \
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/agents/pm-lead.md \
   -o ~/.config/opencode/agents/pm-lead.md
 # Repeat for pm-explorer.md, pm-strategist.md, pm-builder.md, pm-reviewer.md,
 # pm-coach.md, pm-smith.md
@@ -290,6 +290,6 @@ PRs welcome. Skill format:
 
 ## License
 
-`tpm-tools` original content: MIT.  
+`pm-agent-harness-kit` original content: MIT.  
 Content adapted from `deanpeters/Product-Manager-Skills`: CC BY-NC-SA 4.0.  
 See [`catalog/comparison-analysis.md`](catalog/comparison-analysis.md) for full attribution.

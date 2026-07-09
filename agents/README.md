@@ -1,6 +1,6 @@
 # TPM Agent Directory
 
-This directory contains the specialized PM agent definitions for the tpm-tools harness. Each agent has a focused domain, a consistent persona, and a defined role in the product development pipeline.
+This directory contains the specialized PM agent definitions for the pm-agent-harness-kit harness. Each agent has a focused domain, a consistent persona, and a defined role in the product development pipeline.
 
 ## Quick Reference: Which Agent When?
 
@@ -173,8 +173,8 @@ They build different things for different audiences:
 | | `pm-builder` | `pm-smith` |
 |---|---|---|
 | **Builds** | Product artifacts: PRDs, user stories, specs, story maps | Library artifacts: skill files (SKILL.md, template.md, examples) |
-| **Audience** | PMs doing product work | Maintainers extending the tpm-tools library |
-| **Output is for** | Engineering teams, stakeholders | The tpm-tools repo itself |
+| **Audience** | PMs doing product work | Maintainers extending the pm-agent-harness-kit library |
+| **Output is for** | Engineering teams, stakeholders | The pm-agent-harness-kit repo itself |
 | **Analogy** | A carpenter building furniture | A toolmaker forging the carpenter's tools |
 | **Pipeline role** | Stage 4 — produces the deliverable | Standalone — not in the pipeline |
 

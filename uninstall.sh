@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# tpm-tools uninstaller — removes the agent and all skills installed by install.sh
+# pm-agent-harness-kit uninstaller — removes the agent and all skills installed by install.sh
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/uninstall.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/uninstall.sh | bash
 #   ./uninstall.sh --runtime opencode
 #   ./uninstall.sh --list-runtimes
 
 set -euo pipefail
 
-REPO="DIAL-Studio/tpm-tools"
+REPO="DIAL-Studio/pm-agent-harness-kit"
 RUNTIME="${TPM_TOOLS_RUNTIME:-opencode}"
 
 green()  { printf "\033[32m%s\033[0m\n" "$*"; }
@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
     --list-runtimes)  list_runtimes; exit 0 ;;
     -h|--help)
       cat <<EOF
-tpm-tools uninstaller
+pm-agent-harness-kit uninstaller
 
 Usage:
   ./uninstall.sh --runtime <id>
@@ -58,7 +58,7 @@ case "$RUNTIME" in
     OC_ROOT="${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}"
     SKILL_DIR="$OC_ROOT/skills"
     AGENT_FILE="$OC_ROOT/agents/tpm.md"
-    CONFIG_SNIPPET="$OC_ROOT/opencode-tpm-tools.json"
+    CONFIG_SNIPPET="$OC_ROOT/opencode-pm-agent-harness-kit.json"
     SKILL_NAMES=(
       acquisition-channel-advisor agent-orchestration-advisor
       ai-shaped-readiness-advisor altitude-horizon-framework

@@ -1,6 +1,6 @@
 # PM-AHK: What It Is and Why It Exists
 
-**PM-AHK** is the concept name for tpm-tools' agent harness architecture. It adapts the [agent-harness-kit](https://github.com/enmanuelmag/agent-harness-kit) pipeline pattern — originally built for software development — to product management. Instead of a single monolithic TPM agent trying to do everything, PM-AHK gives you a pipeline of specialized agents, each with deep domain focus.
+**PM-AHK** is the concept name for pm-agent-harness-kit's agent harness architecture. It adapts the [agent-harness-kit](https://github.com/enmanuelmag/agent-harness-kit) pipeline pattern — originally built for software development — to product management. Instead of a single monolithic TPM agent trying to do everything, PM-AHK gives you a pipeline of specialized agents, each with deep domain focus.
 
 ---
 
@@ -79,9 +79,9 @@ The `pm-` prefix ensures PM-AHK and AHK can coexist in the same project without 
 
 ## Quick Start
 
-1. **Install tpm-tools** if you haven't already:
+1. **Install pm-agent-harness-kit** if you haven't already:
    ```bash
-   curl -sSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/install.sh | bash
+   curl -sSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
    ```
 
 2. **Open pm-lead** in your AI tool (opencode: `Tab → pm-lead`)
@@ -96,7 +96,7 @@ That's it. `pm-lead` decides whether you need Explorer, Strategist, Builder, and
 
 ## Key Principles
 
-1. **Agents are thin wrappers around skills.** Each agent owns 8–15 skills from the tpm-tools library. The agent provides persona and principles; skills provide workflow and templates.
+1. **Agents are thin wrappers around skills.** Each agent owns 8–15 skills from the pm-agent-harness-kit library. The agent provides persona and principles; skills provide workflow and templates.
 
 2. **Boundaries are enforced by persona, not just permissions.** An Explorer *could* write a spec, but its persona says "I don't propose solutions." The behavioral guardrail matters more than the technical one.
 
