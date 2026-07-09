@@ -1,18 +1,30 @@
 # tpm-tools
 
-> **Technical Product Manager** — agent + 59 PM skills for AI coding runtimes.  
-> Today ships opencode support; designed to grow into Claude Code, Cursor, and others.
+> **PM-AHK — Agent Harness Kit for Product Managers.**  
+> 7 specialized PM agents in a pipeline + 59 skills. Modeled on [agent-harness-kit](https://github.com/enmanuelmag/agent-harness-kit).  
+> Ships opencode support today; Claude Code integration in progress (beta tester available).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-59-informational?style=flat-square)](catalog/comparison-analysis.md)
+[![Agents](https://img.shields.io/badge/agents-7-informational?style=flat-square)](agents/README.md)
 
 ## What's inside
 
 | Path | Type | Runtime | What it does |
 |------|------|---------|--------------|
+| `agents/*.md` | Agents (7) | opencode | Specialized PM agents in a harness pipeline — Lead, Explorer, Strategist, Builder, Reviewer + Coach, Smith. See [agents/README.md](agents/README.md). |
 | `skills/*/SKILL.md` | Skills (59) | opencode+ | Full PM skill library — PRDs, user stories, strategy, RICE, experiments, metrics, stakeholder, AI agents, career, and more |
-| `agents/tpm.md` | Agent | opencode | Primary TPM agent. Translates ambiguity into crisp requirements, prioritizes rigorously (RICE), orchestrates work without writing code. |
 | `.well-known/skills.json` | Manifest | opencode | Discoverable skill listing for `skills.urls`. |
+
+### The PM-AHK Pipeline
+
+```
+pm-lead → pm-explorer → pm-strategist (conditional) → pm-builder → pm-reviewer
+    ↑           ↑               ↑                        ↑             ↑
+ Orchestrator  Discovery    Strategy advisor         Spec creation   Validation
+```
+
+Start with `pm-lead` for any PM task. It classifies your request and either answers directly (lightweight queries) or routes you through the specialist pipeline. Full documentation: [docs/PM-AHK.md](docs/PM-AHK.md).
 
 ## Full Skill Library (59 skills)
 
@@ -122,33 +134,42 @@
 | `skill-authoring-workflow` | Create repo-compliant skills |
 | `pm-skill-creator` | Design skills via conversation |
 
-### Agent
-| Asset | Description |
-|-------|-------------|
-| `agents/tpm.md` | TPM primary agent — skill index, operating principles, workflow |
+### Agent Pipeline
+| Agent | Role | Skills | Docs |
+|-------|------|--------|------|
+| `pm-lead` | Orchestrator + lightweight queries | 8 | [agents/pm-lead.md](agents/pm-lead.md) |
+| `pm-explorer` | Discovery & research | 15 | [agents/pm-explorer.md](agents/pm-explorer.md) |
+| `pm-strategist` | Strategy advisory (conditional) | 10 | [agents/pm-strategist.md](agents/pm-strategist.md) |
+| `pm-builder` | Spec & artifact creation | 12 | [agents/pm-builder.md](agents/pm-builder.md) |
+| `pm-reviewer` | Quality validation (approve/block) | 13 | [agents/pm-reviewer.md](agents/pm-reviewer.md) |
+| `pm-coach` | Career transitions (auxiliary) | 5 | [agents/pm-coach.md](agents/pm-coach.md) |
+| `pm-smith` | Skill authoring (auxiliary) | 2 | [agents/pm-smith.md](agents/pm-smith.md) |
+
+See [agents/README.md](agents/README.md) for full pipeline documentation, agent boundaries, and the FAQ.
 
 ## Supported runtimes
 
 | Runtime | Status | Config root | Notes |
 |---------|--------|-------------|-------|
-| `opencode` | ✅ supported | `~/.config/opencode` | Default. Agent + skills auto-discovered. |
-| `claude` | 🟡 planned | `~/.claude` | SKILL.md format-compatible; agent frontmatter needs adaptation. |
-| `copilot` | 🟡 planned | `~/.github/copilot` | Chatmode format under validation. |
+| `opencode` | ✅ supported | `~/.config/opencode` | Default. Agents + skills auto-discovered. |
+| `claude-code` | 🔵 in progress | `~/.claude` | Phase 1 target (beta tester available). See [docs/ROADMAP.md](docs/ROADMAP.md). |
+| `copilot` | 🟡 planned | `~/.github/copilot` | Phase 2. Prompt format under validation. |
+| `codex` | 🟡 planned | `~/.codex` | Phase 3. TOML agent format. |
 | `cursor` | 🟡 planned | `~/.cursor` | Spec TBD. |
 
-Vote or track progress: https://github.com/DIAL-Studio/tpm-tools/issues
+Track progress: [docs/ROADMAP.md](docs/ROADMAP.md)
 
 ## Install
 
 ### One-liner (recommended, default runtime = opencode)
 
-Installs the TPM agent + all 59 skills:
+Installs the PM-AHK agents + all 59 skills:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/install.sh | bash
 ```
 
-**After install:** Restart opencode, press **Tab**, and the `tpm` agent is there with the full skill library.
+**After install:** Restart opencode, press **Tab**, and `pm-lead` is there with the full pipeline and skill library.
 
 ### Choose a runtime
 
@@ -187,39 +208,51 @@ If you prefer to keep skills remote rather than vendored locally:
 }
 ```
 
-Then install the agent locally (opencode has no remote-agent channel):
+Then install the agents locally (opencode has no remote-agent channel):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/agents/tpm.md \
-  -o ~/.config/opencode/agents/tpm.md
+# Install all 7 agents
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/tpm-tools/main/agents/pm-lead.md \
+  -o ~/.config/opencode/agents/pm-lead.md
+# Repeat for pm-explorer.md, pm-strategist.md, pm-builder.md, pm-reviewer.md,
+# pm-coach.md, pm-smith.md
 ```
 
 ### Verify
 
-- Press **Tab** → `tpm` appears as a selectable primary agent.
-- In `tpm` mode, ask it to write a PRD, run RICE, design an experiment, or build a strategy canvas — the matching skill loads automatically.
+- Press **Tab** → `pm-lead` appears as a selectable primary agent.
+- Ask it anything — it classifies your request and either answers directly or routes to specialist agents.
+- Try: "Write a PRD for checkout v2" — `pm-lead` routes to `pm-explorer` → `pm-builder` → `pm-reviewer`.
 
-## What the agent does
+## How the pipeline works
 
-The `tpm` agent owns the bridge between business intent and engineering execution:
+The 7-agent harness follows a fixed pipeline, modeled on [agent-harness-kit](https://github.com/enmanuelmag/agent-harness-kit):
 
-- Starts from the **problem**, not the solution
-- Makes ambiguity **explicit**: numbered assumptions, open-question lists
-- Uses **RICE** before recommending priority
-- One decision per artifact — a PRD owns one decision
-- Slices work into **smallest-shippable** increments with acceptance criteria
-- Every recommendation lists **2–3 options** + rejected alternatives
-- Estimates are **ranges** with confidence %
-- Every feature ships with a **leading metric** + **guardrail metric**
+| Stage | Agent | What happens |
+|-------|-------|-------------|
+| 1 | `pm-lead` | Classifies the request. Lightweight query → answers directly. Product initiative → writes decomposition plan and routes. |
+| 2 | `pm-explorer` | Researches users, markets, problems. Produces evidence summary with confidence levels. Does NOT propose solutions. |
+| 3 | `pm-strategist` | (Conditional) Advises on positioning, sizing, tradeoffs. Invoked only for strategic initiatives — skipped for routine features. |
+| 4 | `pm-builder` | Writes PRDs, user stories, acceptance criteria. Only agent that produces engineering-ready specs. Does NOT write code. |
+| 5 | `pm-reviewer` | Validates evidence quality, metric readiness, experiment design. Only agent that can approve or block a deliverable. |
 
-## Permissions posture
+Two auxiliary agents sit outside the pipeline: `pm-coach` (career transitions, interview prep) and `pm-smith` (skill authoring for maintainers).
 
-`tpm.md` is read-only by design:
+## Permissions model
 
-- `edit: ask` — must confirm any file write
-- `bash: ask` for everything except read-only git/gh/rg/ls
-- `task: allow` — delegates to `@explore` and `@general`
-- `skill: *: allow` — the agent has access to all 59 skills
+Each agent has scoped permissions matching its pipeline role:
+
+| Agent | Edit | Writes specs? | Approves? |
+|-------|------|--------------|-----------|
+| `pm-lead` | ask | No | Routes |
+| `pm-explorer` | ask | No (evidence only) | No |
+| `pm-strategist` | ask | No (advisory only) | No |
+| `pm-builder` | allow | Yes (specs only) | No |
+| `pm-reviewer` | ask | No (reviews only) | Yes (approve/block) |
+| `pm-coach` | ask | No | No |
+| `pm-smith` | allow | No (skill files only) | No |
+
+Boundaries are enforced by persona instructions, not just technical permissions. Even if `pm-explorer` *could* write a spec, it won't — its operating principles forbid proposing solutions.
 
 ## Skill origins
 
@@ -231,19 +264,20 @@ This library is a curated consolidation of battle-tested PM frameworks:
 | [`alirezarezvani/claude-skills`](https://www.skills.sh/alirezarezvani/claude-skills/product-skills) | Inspiration for `experiment-designer` | Reference |
 | [`phuryn/pm-skills`](https://www.skills.sh/phuryn/pm-skills/product-strategy) | Inspiration for `strategy-canvas` | Reference |
 | [`digidai/product-manager-skills`](https://www.skills.sh/digidai/product-manager-skills/product-manager-skills) | Inspiration for `growth-plg-advisor`, coaching patterns | Reference |
-| DIAL-Studio original | `tpm-artifacts`, `agents/tpm.md`, install/uninstall scripts, transformation tooling | MIT |
+| DIAL-Studio original | PM-AHK agent architecture (7 agents), `tpm-artifacts`, install/uninstall scripts, transformation tooling | MIT |
 
 See [`catalog/comparison-analysis.md`](catalog/comparison-analysis.md) for the full gap analysis.
 
 ## Roadmap
 
-- [x] opencode agent + 59 skills (`--runtime opencode`)
-- [ ] `--runtime claude` adapter
-- [ ] `--runtime copilot` adapter
-- [ ] `--runtime cursor` adapter
-- [ ] More skills: `competitive-teardown`, `coaching-mode`, `defensibility-analysis`, `code-to-prd`
-- [ ] PM Sprint workflow (Discover→Position→Prioritize→Specify→Validate→Measure)
-- [ ] Per-agent permission config in install.sh
+See [docs/ROADMAP.md](docs/ROADMAP.md) for the full PM-AHK development plan, including:
+
+- **Phase 1 (current)**: Claude Code integration (beta tester available), validation, docs
+- **Phase 2**: GitHub Copilot integration
+- **Phase 3**: Codex (OpenAI) integration
+- **Phase 4**: Commands ↔ agents integration
+- **Phase 5**: Full harness infrastructure (backlog, audit trail, quality gate, dashboard)
+- **Phase 6+**: AHK interop guide, ecosystem expansion
 
 ## Contributing
 

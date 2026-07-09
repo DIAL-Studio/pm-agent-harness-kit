@@ -888,6 +888,18 @@ See [LICENSE](LICENSE) for full details.
 
 ---
 
+**v0.80 — July 9, 2026 (tpm-tools / PM-AHK)**
+
+Highlights in this release:
+- Decomposed monolithic `tpm.md` into a 7-agent PM-AHK harness following the agent-harness-kit pipeline pattern
+- New agents: `pm-lead` (orchestrator), `pm-explorer` (discovery), `pm-strategist` (strategy advisor), `pm-builder` (spec creation), `pm-reviewer` (quality validation), `pm-coach` (career transitions), `pm-smith` (skill authoring)
+- Pipeline: Lead → Explorer → Strategist (conditional) → Builder → Reviewer
+- Permissions model: scoped per-agent with persona-enforced boundaries
+- Skill-to-agent mapping: 59 skills assigned across 7 agents (some dual-assigned where skills serve multiple pipeline stages)
+- Full documentation: `docs/PM-AHK.md`, `agents/README.md`, `docs/ROADMAP.md`
+- Archived: `tpm.md` → `tpm.md.archived` with migration deprecation notice
+- Next: Claude Code integration (beta tester available), GitHub Copilot, Codex
+
 **v0.79 — May 15, 2026**
 
 Highlights in this release:

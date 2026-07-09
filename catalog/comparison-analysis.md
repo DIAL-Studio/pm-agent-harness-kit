@@ -196,7 +196,7 @@ New skills to create:
 The fork (Product-Manager-Skills) is the full 55+ skills library. tpm-tools can remain as a lightweight entry point with just the agent + one skill, referencing the fork as the full library.
 
 ### 2. Add an `agents/` dir to the fork
-This is the deanpeters repo's biggest gap for opencode users. A `tpm.md` agent (ported from tpm-tools) plus specialized agents (`pm-strategist.md`, `discovery-lead.md`) would make the fork opencode-native.
+This is the deanpeters repo's biggest gap for opencode users. tpm-tools now ships a 7-agent PM-AHK harness (pm-lead, pm-explorer, pm-strategist, pm-builder, pm-reviewer, pm-coach, pm-smith) modeled on the agent-harness-kit pipeline pattern. Porting this architecture would make the fork opencode-native with full pipeline support.
 
 ### 3. Add `.well-known/skills.json`
 Opencode supports URL-based skill discovery. Adding this manifest allows `skills.urls` in opencode.json to install skills directly from the repo.

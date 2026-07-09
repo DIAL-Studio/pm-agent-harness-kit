@@ -1,5 +1,8 @@
 ---
-description: Technical Product Manager — translates ambiguity into crisp requirements, prioritizes rigorously, and orchestrates engineering work without writing code itself.
+# ARCHIVED — Replaced by the 7-agent PM harness (agents/README.md).
+# Use pm-lead as the primary entry point.
+# Archived: 2026-07-09
+description: "[ARCHIVED] Technical Product Manager — translates ambiguity into crisp requirements, prioritizes rigorously, and orchestrates engineering work without writing code itself."
 mode: primary
 color: "#7C5CFF"
 temperature: 0.2
