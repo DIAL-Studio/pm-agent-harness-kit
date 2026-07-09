@@ -888,17 +888,23 @@ See [LICENSE](LICENSE) for full details.
 
 ---
 
-**v0.80 — July 9, 2026 (pm-agent-harness-kit / PM-AHK)**
+**v1.1.0 — July 9, 2026 (pm-agent-harness-kit / PM-AHK)**
 
 Highlights in this release:
-- Decomposed monolithic `tpm.md` into a 7-agent PM-AHK harness following the agent-harness-kit pipeline pattern
-- New agents: `pm-lead` (orchestrator), `pm-explorer` (discovery), `pm-strategist` (strategy advisor), `pm-builder` (spec creation), `pm-reviewer` (quality validation), `pm-coach` (career transitions), `pm-smith` (skill authoring)
-- Pipeline: Lead → Explorer → Strategist (conditional) → Builder → Reviewer
-- Permissions model: scoped per-agent with persona-enforced boundaries
-- Skill-to-agent mapping: 59 skills assigned across 7 agents (some dual-assigned where skills serve multiple pipeline stages)
-- Full documentation: `docs/PM-AHK.md`, `agents/README.md`, `docs/ROADMAP.md`
-- Archived: `tpm.md` → `tpm.md.archived` with migration deprecation notice
-- Next: Claude Code integration (beta tester available), GitHub Copilot, Codex
+- Claude Code integration — 7 PM-AHK agents in Claude Code format (.claude/agents/ files)
+- `install.sh --runtime claude-code` supported — installs agents into ~/.claude/agents/
+- `settings.json` created with pm-lead as default Claude Code agent
+- `docs/INSTALL-CLAUDE-CODE.md` — integration guide for Claude Code users
+- VERSION file + version tracking (pm-ahk.version stored at install time)
+- `update.sh` — check and apply latest version
+- `scripts/check-update.sh` — version checker with human and --json output
+- `install.sh` now installs all 7 agents (not just old tpm.md)
+- `uninstall.sh` cleans up all 7 agents + version file
+- Git tag v1.1.0
+
+**v1.0.0 — July 9, 2026 (pm-agent-harness-kit starting point)**
+
+Original monolithic tpm.md archived. 7-agent PM-AHK pipeline established.
 
 **v0.79 — May 15, 2026**
 

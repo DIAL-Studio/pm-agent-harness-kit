@@ -37,10 +37,10 @@ has()    { command -v "$1" >/dev/null 2>&1; }
 
 # --- Runtime registry -------------------------------------------------------
 RUNTIME_TABLE=(
-  "opencode   supported   \$HOME/.config/opencode   opencode (default)"
-  "claude     planned     \$HOME/.claude             Claude Code"
-  "copilot    planned     \$HOME/.github/copilot     GitHub Copilot Chat"
-  "cursor     planned     \$HOME/.cursor             Cursor"
+  "opencode    supported   \$HOME/.config/opencode    opencode (default)"
+  "claude-code supported   \$HOME/.claude              Claude Code"
+  "copilot     planned     \$HOME/.github/copilot      GitHub Copilot Chat"
+  "cursor      planned     \$HOME/.cursor              Cursor"
 )
 
 list_runtimes() {
@@ -125,6 +125,15 @@ case "$RUNTIME" in
     BINARY_URL="https://opencode.ai"
     VERIFY_HINT="Press Tab to switch to 'pm-lead' — the primary PM-AHK agent."
     ;;
+  claude-code)
+    OC_ROOT="${HOME}/.claude"
+    SKILL_DIR="$OC_ROOT/skills"
+    AGENT_DIR="$OC_ROOT/agents"
+    VERSION_FILE="$OC_ROOT/pm-ahk.version"
+    BINARY_NAME="claude"
+    BINARY_URL="https://docs.anthropic.com/en/docs/claude-code"
+    VERIFY_HINT="In Claude Code, use '/agent pm-lead' or select pm-lead from the agent menu."
+    ;;
   claude|copilot|cursor)
     red "runtime '$RUNTIME' is planned but not yet supported."
     echo
@@ -205,13 +214,21 @@ fi
 
 # --- Install agents ----------------------------------------------------------
 
-# Remove old monolithic tpm.md if it exists (replaced by 7-agent harness)
-backup_path "$AGENT_DIR/tpm.md"
+# Choose agent source directory based on runtime
+if [[ "$RUNTIME" == "claude-code" ]]; then
+  AGENT_SOURCE_DIR="$EXTRACTED_DIR/.claude/agents"
+  # Remove old monolithic tpm.md if it exists (replaced by 7-agent harness)
+  backup_path "$AGENT_DIR/tpm.md"
+else
+  AGENT_SOURCE_DIR="$EXTRACTED_DIR/agents"
+  # Remove old monolithic tpm.md if it exists (replaced by 7-agent harness)
+  backup_path "$AGENT_DIR/tpm.md"
+fi
 
 cyan "Installing 7 PM-AHK agents..."
 
 agent_count=0
-for agent_file in "$EXTRACTED_DIR/agents"/*.md; do
+for agent_file in "$AGENT_SOURCE_DIR"/*.md; do
   agent_name="$(basename "$agent_file")"
   # Skip README.md — it's documentation, not an agent
   [[ "$agent_name" == "README.md" ]] && continue
@@ -228,6 +245,33 @@ if [[ $agent_count -gt 0 ]]; then
   green "$agent_count agents installed to $AGENT_DIR/"
 else
   yellow "warning: No agent files found in archive. The repo structure may have changed."
+fi
+
+# --- Claude Code-specific: create settings.json ------------------------------
+
+if [[ "$RUNTIME" == "claude-code" ]]; then
+  SETTINGS_FILE="$OC_ROOT/settings.json"
+  if [[ -f "$SETTINGS_FILE" ]]; then
+    # Check if settings.json already has an agent setting
+    if grep -q '"agent"' "$SETTINGS_FILE" 2>/dev/null; then
+      yellow "settings.json already has an 'agent' setting — not overwriting."
+    else
+      backup_path "$SETTINGS_FILE"
+      cat > "$SETTINGS_FILE" <<- 'CFG'
+{
+  "agent": "pm-lead"
+}
+CFG
+      green "settings.json created: $SETTINGS_FILE"
+    fi
+  else
+    cat > "$SETTINGS_FILE" <<- 'CFG'
+{
+  "agent": "pm-lead"
+}
+CFG
+    green "settings.json created: $SETTINGS_FILE"
+  fi
 fi
 
 # --- Store installed version -------------------------------------------------

@@ -31,8 +31,9 @@
 - [x] `README.md` — rewritten for PM-AHK positioning
 - [x] `agents/README.md` — pipeline guide + roadmap link
 - [x] `catalog/README.md` — agents section added
-- [x] `docs/CHANGELOG.md` — v0.80 milestone entry
+- [x] `docs/CHANGELOG.md` — v1.1.0 milestone entry
 - [x] `catalog/comparison-analysis.md` — agent gap addressed
+- [x] `docs/INSTALL-CLAUDE-CODE.md` — integration guide
 
 ### 1b: Validation
 - [ ] Skill name audit — verify all skill references in agent frontmatter match exact skill names in the library
@@ -40,21 +41,21 @@
 - [ ] End-to-end pipeline test — one full pass through Lead → Explorer → Builder → Reviewer
 - [ ] Permission model validation per agent
 
-### 1c: Claude Code Integration (PRIORITY — beta tester available)
+### 1c: Claude Code Integration (DONE)
 
-Generate Claude Code-compatible agent files from the opencode definitions:
+- [x] Create `.claude/agents/pm-lead.md` — map opencode frontmatter → Claude Code format
+- [x] Create `.claude/agents/pm-explorer.md`
+- [x] Create `.claude/agents/pm-strategist.md`
+- [x] Create `.claude/agents/pm-builder.md`
+- [x] Create `.claude/agents/pm-reviewer.md`
+- [x] Create `.claude/agents/pm-coach.md`
+- [x] Create `.claude/agents/pm-smith.md`
+- [x] Create `.claude/settings.json` — set `pm-lead` as default agent
+- [x] Map opencode `permission` blocks → Claude Code `tools` and `permissionMode` fields
+- [x] Write `docs/INSTALL-CLAUDE-CODE.md` — integration guide
+- [ ] **Beta tester validation pass** — awaiting beta tester feedback
 
-- [ ] Create `.claude/agents/pm-lead.md` — map opencode frontmatter → Claude Code format
-- [ ] Create `.claude/agents/pm-explorer.md`
-- [ ] Create `.claude/agents/pm-strategist.md`
-- [ ] Create `.claude/agents/pm-builder.md`
-- [ ] Create `.claude/agents/pm-reviewer.md`
-- [ ] Create `.claude/agents/pm-coach.md`
-- [ ] Create `.claude/agents/pm-smith.md`
-- [ ] Create `.claude/settings.json` — set `pm-lead` as default agent
-- [ ] Map opencode `permission` blocks → Claude Code `tools` and `permissionMode` fields
-- [ ] Write `docs/INSTALL-CLAUDE-CODE.md` — integration guide
-- [ ] Beta tester validation pass
+**To test:** Install with `curl .../install.sh | TPM_TOOLS_RUNTIME=claude-code bash` and verify `/agent pm-lead` works in Claude Code.
 
 **Claude Code frontmatter mapping:**
 

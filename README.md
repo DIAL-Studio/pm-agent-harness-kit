@@ -152,7 +152,7 @@ See [agents/README.md](agents/README.md) for full pipeline documentation, agent 
 | Runtime | Status | Config root | Notes |
 |---------|--------|-------------|-------|
 | `opencode` | ✅ supported | `~/.config/opencode` | Default. Agents + skills auto-discovered. |
-| `claude-code` | 🔵 in progress | `~/.claude` | Phase 1 target (beta tester available). See [docs/ROADMAP.md](docs/ROADMAP.md). |
+| `claude-code` | ✅ supported | `~/.claude` | Phase 1 complete. See [docs/INSTALL-CLAUDE-CODE.md](docs/INSTALL-CLAUDE-CODE.md). |
 | `copilot` | 🟡 planned | `~/.github/copilot` | Phase 2. Prompt format under validation. |
 | `codex` | 🟡 planned | `~/.codex` | Phase 3. TOML agent format. |
 | `cursor` | 🟡 planned | `~/.cursor` | Spec TBD. |
