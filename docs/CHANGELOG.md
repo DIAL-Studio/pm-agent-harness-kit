@@ -888,6 +888,18 @@ See [LICENSE](LICENSE) for full details.
 
 ---
 
+**v1.3.0 — July 9, 2026 (pm-agent-harness-kit / PM-AHK)**
+
+Highlights in this release:
+- **Interactive installer** — TUI with prompts, box drawing, summary screen. Run without flags.
+- **Silent mode** — `--runtime <id>` bypasses TUI for CI/scripts. Default when runtime is specified.
+- **No more agent duplication** — `.claude/agents/` deleted. `scripts/transform-frontmatter.sh` generates runtime-specific agents from canonical `agents/*.md` at install time.
+- **Transform script** — `scripts/transform-frontmatter.sh` maps opencode frontmatter → Claude Code, Copilot, Codex formats. Single source of truth.
+- **Daily update flag** — `scripts/pm-ahk-cron.sh` runs at install, writes `pm-ahk.update-available` if newer version exists. pm-lead reads this flag — no network calls per session.
+- **install.sh rewritten** — 2 prompts (runtime + path), progress summary, Windows WSL disclaimer
+- **Windows disclaimer** — Native Windows not supported. Use WSL.
+- **Removed** `.claude/agents/*.md` and `.claude/settings.json` — no longer duplicated
+
 **v1.2.0 — July 9, 2026 (pm-agent-harness-kit / PM-AHK)**
 
 Highlights in this release:

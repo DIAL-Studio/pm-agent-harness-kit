@@ -220,3 +220,6 @@ skills-backup-*.tar.gz
 
 # Local marketplace working docs (do not commit yet)
 docs/marketplace/
+
+# Claude Code — generated at install time by transform-frontmatter.sh
+.claude/

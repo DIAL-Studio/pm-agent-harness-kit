@@ -1,81 +1,95 @@
 #!/usr/bin/env bash
-# pm-agent-harness-kit installer — copies the PM-AHK agents and full skill library into the
-# discovery paths of the chosen runtime. No config file edits required.
+# pm-agent-harness-kit installer — interactive TUI + silent mode.
 #
-# Usage (default runtime: opencode):
+# Interactive (default — prompts for runtime and path):
 #   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
 #
-# Pick a runtime:
-#   curl -fsSL .../install.sh | TPM_TOOLS_RUNTIME=opencode bash
+# Silent (non-interactive, with explicit runtime):
+#   curl .../install.sh | TPM_TOOLS_RUNTIME=claude-code bash
 #   ./install.sh --runtime opencode
+#   ./install.sh --runtime claude-code --non-interactive
 #   ./install.sh --list-runtimes
-#
-# Pin a branch/version:
-#   TPM_TOOLS_BRANCH=v1.0.0 ./install.sh --runtime opencode
-#
-# Override the config dir (opencode only):
-#   OPENCODE_CONFIG_DIR=/custom/path ./install.sh --runtime opencode
 
 set -euo pipefail
 
 # --- Config -----------------------------------------------------------------
-
 REPO="DIAL-Studio/pm-agent-harness-kit"
 BRANCH="${TPM_TOOLS_BRANCH:-main}"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 ARCHIVE_URL="https://github.com/${REPO}/archive/${BRANCH}.tar.gz"
-RUNTIME="${TPM_TOOLS_RUNTIME:-opencode}"
+RUNTIME="${TPM_TOOLS_RUNTIME:-}"
+NON_INTERACTIVE=false
+SKILL_COUNT=0
 
-# --- Helpers ----------------------------------------------------------------
+# --- Colors and helpers -----------------------------------------------------
+BOLD="\033[1m"
+DIM="\033[2m"
+RESET="\033[0m"
+GREEN="\033[32m"
+CYAN="\033[36m"
+YELLOW="\033[33m"
+RED="\033[31m"
+MAGENTA="\033[35m"
 
-cyan()   { printf "\033[36m%s\033[0m\n" "$*"; }
-green()  { printf "\033[32m%s\033[0m\n" "$*"; }
-red()    { printf "\033[31m%s\033[0m\n" "$*"; }
-yellow() { printf "\033[33m%s\033[0m\n" "$*"; }
+green()  { printf "${GREEN}%s${RESET}\n" "$*"; }
+cyan()   { printf "${CYAN}%s${RESET}\n" "$*"; }
+yellow() { printf "${YELLOW}%s${RESET}\n" "$*"; }
+red()    { printf "${RED}%s${RESET}\n" "$*" >&2; }
+bold()   { printf "${BOLD}%s${RESET}\n" "$*"; }
+dim()    { printf "${DIM}%s${RESET}\n" "$*"; }
+magenta(){ printf "${MAGENTA}%s${RESET}\n" "$*"; }
 die()    { red "error: $*" >&2; exit 1; }
 has()    { command -v "$1" >/dev/null 2>&1; }
 
-# --- Runtime registry -------------------------------------------------------
-RUNTIME_TABLE=(
-  "opencode    supported   \$HOME/.config/opencode    opencode (default)"
-  "claude-code supported   \$HOME/.claude              Claude Code"
-  "copilot     planned     \$HOME/.github/copilot      GitHub Copilot Chat"
-  "cursor      planned     \$HOME/.cursor              Cursor"
-)
+# --- Helpers: box drawing ---------------------------------------------------
+
+box_top()    { printf "  ${BOLD}╔%s╗${RESET}\n" "$(printf '═%.0s' $(seq 1 $((COLUMNS-6)) ))"; }
+box_bot()    { printf "  ${BOLD}╚%s╝${RESET}\n" "$(printf '═%.0s' $(seq 1 $((COLUMNS-6)) ))"; }
+box_line()   { printf "  ${BOLD}║${RESET} %-$((${COLUMNS}-8))s ${BOLD}║${RESET}\n" "$*"; }
+box_title()  { printf "  ${BOLD}║${RESET}${MAGENTA} %s${RESET}\n" "$*"; }
+separator()  { printf "  ${DIM}─────────────────────────────────────────────────────${RESET}\n"; }
+
+COLUMNS="${COLUMNS:-80}"
+
+runtimes() {
+  cat <<TABLE
+  ${BOLD}Available runtimes:${RESET}
+    1) opencode     (default) — opencode
+    2) claude-code             — Claude Code
+    3) copilot                 — GitHub Copilot (planned — installs files, runtime TBD)
+    4) codex                   — OpenAI Codex   (planned — installs files, runtime TBD)
+TABLE
+}
 
 list_runtimes() {
   cyan "Available runtimes:"
-  printf "  %-10s %-10s %-26s %s\n" "RUNTIME" "STATUS" "DEFAULT CONFIG ROOT" "TOOL"
-  printf "  %-10s %-10s %-26s %s\n" "-------" "------" "--------------------" "----"
-  for row in "${RUNTIME_TABLE[@]}"; do
-    read -r id status root display <<< "$row"
-    printf "  %-10s %-10s %-26s %s\n" "$id" "$status" "$root" "$display"
-  done
-  cat <<EOF
-
-Only "supported" runtimes will install. "planned" runtimes print this list
-and exit non-zero. Vote or track progress at:
-  https://github.com/DIAL-Studio/pm-agent-harness-kit/issues
-EOF
+  printf "  %-12s %s\n" "opencode"   "opencode (default) — supported"
+  printf "  %-12s %s\n" "claude-code" "Claude Code — supported"
+  printf "  %-12s %s\n" "copilot"    "GitHub Copilot (planned)"
+  printf "  %-12s %s\n" "codex"      "OpenAI Codex (planned)"
+  echo ""
+  echo 'Only "supported" runtimes will install. "planned" runtimes exit non-zero.'
+  echo "Track progress at: https://github.com/DIAL-Studio/pm-agent-harness-kit/issues"
 }
 
 usage() {
   cat <<EOF
-pm-agent-harness-kit installer — PM-AHK agents + full skill library
+pm-agent-harness-kit installer — 7 PM agents + 59 skills
 
 Usage:
-  curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
-  curl -fsSL .../install.sh | TPM_TOOLS_RUNTIME=opencode bash
+  curl -fsSL $BASE_URL/install.sh | bash
+  curl .../install.sh | TPM_TOOLS_RUNTIME=claude-code bash
   ./install.sh --runtime opencode
   ./install.sh --list-runtimes
 
 Flags:
-  --runtime <id>       Choose runtime (default: opencode)
+  --runtime <id>       Choose runtime (silent mode — no prompts)
+  --non-interactive    Fail if --runtime is not set
   --list-runtimes      Print all known runtimes and exit
   -h, --help           Show this help
 
 Environment:
-  TPM_TOOLS_RUNTIME      Same as --runtime (useful for curl|bash)
+  TPM_TOOLS_RUNTIME      Same as --runtime
   TPM_TOOLS_BRANCH       Pin a git ref (default: main)
   OPENCODE_CONFIG_DIR    Override opencode config root (default: ~/.config/opencode)
 EOF
@@ -85,12 +99,13 @@ EOF
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --runtime)        RUNTIME="${2:-}"; shift 2 ;;
-    --runtime=*)      RUNTIME="${1#*=}"; shift ;;
-    --list-runtimes)  list_runtimes; exit 0 ;;
-    -h|--help)        usage; exit 0 ;;
-    --)               shift; break ;;
-    *)                die "Unknown flag: '$1'. Try --help." ;;
+    --runtime)           RUNTIME="${2:-}"; shift 2 ;;
+    --runtime=*)         RUNTIME="${1#*=}"; shift ;;
+    --non-interactive)   NON_INTERACTIVE=true; shift ;;
+    --list-runtimes)     list_runtimes; exit 0 ;;
+    -h|--help)           usage; exit 0 ;;
+    --)                  shift; break ;;
+    *)                   die "Unknown flag: '$1'. Try --help." ;;
   esac
 done
 
@@ -101,60 +116,153 @@ if [[ -z "${HOME:-}" ]]; then
 fi
 
 case "$(uname -s)" in
-  Darwin|Linux|MINGW*|MSYS*|CYGWIN*) : ;;
+  Darwin)  : ;;   # macOS — native
+  Linux)   : ;;   # Linux / WSL — supported
+  MINGW*|MSYS*|CYGWIN*)
+    die "Windows native shell detected. pm-agent-harness-kit requires a Unix-like environment. \
+Install WSL (Windows Subsystem for Linux) and run this installer from your WSL terminal."
+    ;;
   *) die "Unsupported OS: $(uname -s). See manual install in the README." ;;
 esac
 
-if ! has curl; then
-  die "curl is required. Install it and re-run."
+if ! has curl; then die "curl is required. Install it and re-run."; fi
+if ! has tar;  then die "tar is required. Install it and re-run."; fi
+
+# --- Resolve runtime (interactive vs. silent) -------------------------------
+
+if [[ -z "$RUNTIME" ]]; then
+  if $NON_INTERACTIVE; then
+    die "No runtime specified. Use --runtime <id> or TPM_TOOLS_RUNTIME=<id>."
+  fi
+  # ── Interactive TUI ──
+  clear 2>/dev/null || true
+  echo ""
+  box_top
+  box_title "  pm-agent-harness-kit v$(cat "${BASH_SOURCE%/*}/../VERSION" 2>/dev/null || echo "?")"
+  box_line ""
+  box_line "  7 specialized PM agents · 59 skills"
+  box_line ""
+  box_line "  Pipeline: pm-lead → explorer → strategist → builder → reviewer"
+  box_bot
+  echo ""
+
+  runtimes
+  echo ""
+  while true; do
+    read -r -p "  Which AI tool do you use? [1] " choice
+    choice="${choice:-1}"
+    case "$choice" in
+      1) RUNTIME="opencode"; break ;;
+      2) RUNTIME="claude-code"; break ;;
+      3) RUNTIME="copilot"; break ;;
+      4) RUNTIME="codex"; break ;;
+      *) echo "  Invalid choice. Enter 1-4." ;;
+    esac
+  done
+
+  # Show compliance for planned runtimes
+  case "$RUNTIME" in
+    copilot|codex)
+      echo ""
+      yellow "  '$RUNTIME' is planned — files will be installed but runtime integration"
+      yellow "  is not yet complete. Track progress at the issues page."
+      echo ""
+      read -r -p "  Continue anyway? (y/N) " confirm
+      [[ "$confirm" =~ ^[Yy] ]] || exit 0
+      ;;
+  esac
+
+  # Config directory
+  case "$RUNTIME" in
+    opencode)    DEFAULT_DIR="$HOME/.config/opencode" ;;
+    claude-code) DEFAULT_DIR="$HOME/.claude" ;;
+    copilot)     DEFAULT_DIR="$HOME/.github/copilot" ;;
+    codex)       DEFAULT_DIR="$HOME/.codex" ;;
+  esac
+  echo ""
+  read -r -p "  Install to: [$DEFAULT_DIR] " config_input
+  OC_ROOT="${config_input:-$DEFAULT_DIR}"
+
+  # Summary and confirmation
+  echo ""
+  box_top
+  box_line "  Summary"
+  box_line ""
+  box_line "  Runtime:     $(magenta "$RUNTIME")"
+  box_line "  Config path: $(magenta "$OC_ROOT")"
+  box_line "  Skills:      59"
+  box_line "  Agents:      7"
+  box_line "  Updates:     pm-lead checks on startup (no notifications)"
+  box_bot
+  echo ""
+  read -r -p "  Proceed? (Y/n) " confirm
+  if [[ "$confirm" =~ ^[Nn] ]]; then
+    echo ""
+    yellow "  Cancelled."
+    exit 0
+  fi
+  echo ""
+
+else
+  # ── Silent mode (runtime specified) ──
+  OC_ROOT="${OPENCODE_CONFIG_DIR:-}"
+  case "$RUNTIME" in
+    opencode)    OC_ROOT="${OC_ROOT:-$HOME/.config/opencode}" ;;
+    claude-code) OC_ROOT="${OC_ROOT:-$HOME/.claude}" ;;
+    copilot)     OC_ROOT="${OC_ROOT:-$HOME/.github/copilot}" ;;
+    codex)       OC_ROOT="${OC_ROOT:-$HOME/.codex}" ;;
+    *)           die "Unknown runtime: '$RUNTIME'. Use --list-runtimes." ;;
+  esac
 fi
 
-if ! has tar; then
-  die "tar is required. Install it and re-run."
-fi
-
-# --- Resolve runtime --------------------------------------------------------
+# --- Runtime configuration --------------------------------------------------
 
 case "$RUNTIME" in
   opencode)
-    OC_ROOT="${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}"
     SKILL_DIR="$OC_ROOT/skills"
     AGENT_DIR="$OC_ROOT/agents"
     VERSION_FILE="$OC_ROOT/pm-ahk.version"
+    UPDATE_FLAG="$OC_ROOT/pm-ahk.update-available"
     BINARY_NAME="opencode"
     BINARY_URL="https://opencode.ai"
-    VERIFY_HINT="Press Tab to switch to 'pm-lead' — the primary PM-AHK agent."
+    VERIFY_HINT="Press Tab → select 'pm-lead'"
     ;;
   claude-code)
-    OC_ROOT="${HOME}/.claude"
     SKILL_DIR="$OC_ROOT/skills"
     AGENT_DIR="$OC_ROOT/agents"
     VERSION_FILE="$OC_ROOT/pm-ahk.version"
+    UPDATE_FLAG="$OC_ROOT/pm-ahk.update-available"
     BINARY_NAME="claude"
     BINARY_URL="https://docs.anthropic.com/en/docs/claude-code"
-    VERIFY_HINT="In Claude Code, use '/agent pm-lead' or select pm-lead from the agent menu."
+    VERIFY_HINT="In Claude Code, run '/agent pm-lead'"
     ;;
-  claude|copilot|cursor)
-    red "runtime '$RUNTIME' is planned but not yet supported."
-    echo
-    list_runtimes
-    exit 2
+  copilot)
+    SKILL_DIR="$OC_ROOT/instructions"
+    AGENT_DIR="$OC_ROOT/prompts"
+    VERSION_FILE="$OC_ROOT/pm-ahk.version"
+    UPDATE_FLAG="$OC_ROOT/pm-ahk.update-available"
+    BINARY_NAME=""
+    BINARY_URL=""
+    VERIFY_HINT="Copilot loads prompts from $AGENT_DIR/"
     ;;
-  "")
-    die "No runtime specified. Use --runtime <id> or TPM_TOOLS_RUNTIME=<id>. See --list-runtimes."
-    ;;
-  *)
-    die "Unknown runtime: '$RUNTIME'. See --list-runtimes."
+  codex)
+    SKILL_DIR="$OC_ROOT/skills"
+    AGENT_DIR="$OC_ROOT/agents"
+    VERSION_FILE="$OC_ROOT/pm-ahk.version"
+    UPDATE_FLAG="$OC_ROOT/pm-ahk.update-available"
+    BINARY_NAME=""
+    BINARY_URL=""
+    VERIFY_HINT="Codex loads agents from $AGENT_DIR/"
     ;;
 esac
 
-cyan "Installing pm-agent-harness-kit for runtime '$RUNTIME' into $OC_ROOT/"
+cyan "Installing pm-agent-harness-kit for runtime '$RUNTIME'"
 
-# --- Soft presence check on the runtime binary ------------------------------
+# --- Soft binary check ------------------------------------------------------
 
-if ! has "$BINARY_NAME"; then
-  yellow "warning: '$BINARY_NAME' not found on PATH."
-  yellow "         Files will still be installed; install $BINARY_NAME from $BINARY_URL to use them."
+if [[ -n "$BINARY_NAME" ]] && ! has "$BINARY_NAME"; then
+  yellow "  warning: '$BINARY_NAME' not found on PATH."
+  yellow "           Files will still be installed; install from $BINARY_URL to use them."
 fi
 
 # --- Download archive -------------------------------------------------------
@@ -162,26 +270,20 @@ fi
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
-cyan "Downloading skills library ($BRANCH branch)..."
+cyan "  Downloading..."
 curl -fsSL "$ARCHIVE_URL" -o "$tmp_dir/repo.tar.gz" \
-  || die "Failed to download archive from $ARCHIVE_URL"
+  || die "Failed to download from $ARCHIVE_URL"
 
-cyan "Extracting..."
-tar xzf "$tmp_dir/repo.tar.gz" -C "$tmp_dir" \
-  || die "Failed to extract archive."
+tar xzf "$tmp_dir/repo.tar.gz" -C "$tmp_dir" || die "Failed to extract."
 
+# Find extraction directory
 EXTRACTED_DIR="$tmp_dir/pm-agent-harness-kit-${BRANCH}"
-
-# Guard: verify extraction produced a directory
 if [[ ! -d "$EXTRACTED_DIR" ]]; then
-  # try with main -> main rename or alternative extraction patterns
   EXTRACTED_DIR="$tmp_dir/$(ls "$tmp_dir" | grep -v 'repo.tar.gz' | head -1)"
 fi
 if [[ ! -d "$EXTRACTED_DIR" ]]; then
   die "Extraction failed — expected directory not found."
 fi
-
-# --- Install skills ---------------------------------------------------------
 
 mkdir -p "$SKILL_DIR" "$AGENT_DIR"
 
@@ -190,118 +292,143 @@ backup_path() {
   if [[ -e "$src" ]]; then
     local bak="${src}.bak.$(date +%s)"
     mv "$src" "$bak"
-    yellow "Backed up existing: $src -> $bak"
+    yellow "  Backed up: $src → $bak"
   fi
 }
 
-# Remove old tpm-artifacts if exists (replaced by full library)
-backup_path "$SKILL_DIR/tpm-artifacts"
+# --- Install skills ---------------------------------------------------------
+
+cyan "  Installing 59 skills..."
+mkdir -p "$SKILL_DIR"
 
 if [[ -d "$EXTRACTED_DIR/skills" ]]; then
-  skill_count="$(ls "$EXTRACTED_DIR/skills" | wc -l | tr -d ' ')"
-  cyan "Installing $skill_count skills..."
-
   for skill_dir in "$EXTRACTED_DIR/skills"/*/; do
+    [[ -d "$skill_dir" ]] || continue
     skill_name="$(basename "$skill_dir")"
     target="$SKILL_DIR/$skill_name"
     backup_path "$target"
     cp -r "$skill_dir" "$target"
+    SKILL_COUNT=$((SKILL_COUNT + 1))
   done
-  green "Skills installed to $SKILL_DIR/"
+  green "  Skills: $SKILL_COUNT installed"
 else
   die "No skills/ directory found in the archive."
 fi
 
-# --- Install agents ----------------------------------------------------------
+# --- Install agents (transformed for target runtime) ------------------------
 
-# Choose agent source directory based on runtime
-if [[ "$RUNTIME" == "claude-code" ]]; then
-  AGENT_SOURCE_DIR="$EXTRACTED_DIR/.claude/agents"
-  # Remove old monolithic tpm.md if it exists (replaced by 7-agent harness)
-  backup_path "$AGENT_DIR/tpm.md"
-else
-  AGENT_SOURCE_DIR="$EXTRACTED_DIR/agents"
-  # Remove old monolithic tpm.md if it exists (replaced by 7-agent harness)
-  backup_path "$AGENT_DIR/tpm.md"
-fi
+cyan "  Installing 7 agents..."
+mkdir -p "$AGENT_DIR"
 
-cyan "Installing 7 PM-AHK agents..."
+# Remove old monolithic tpm.md if it exists
+backup_path "$AGENT_DIR/tpm.md"
+
+AGENT_TRANSFORMER="$EXTRACTED_DIR/scripts/transform-frontmatter.sh"
 
 agent_count=0
-for agent_file in "$AGENT_SOURCE_DIR"/*.md; do
+for agent_file in "$EXTRACTED_DIR/agents"/*.md; do
   agent_name="$(basename "$agent_file")"
-  # Skip README.md — it's documentation, not an agent
   [[ "$agent_name" == "README.md" ]] && continue
-  # Skip archived files
   [[ "$agent_name" == *.archived ]] && continue
 
   target="$AGENT_DIR/$agent_name"
   backup_path "$target"
-  cp "$agent_file" "$target"
-  ((agent_count++)) || true
+
+  # Transform via canonical → runtime format
+  if [[ -f "$AGENT_TRANSFORMER" ]]; then
+    bash "$AGENT_TRANSFORMER" "$agent_file" --runtime "$RUNTIME" > "$target"
+  else
+    # Fallback: copy as-is (opencode format)
+    cp "$agent_file" "$target"
+  fi
+  agent_count=$((agent_count + 1))
 done
 
-if [[ $agent_count -gt 0 ]]; then
-  green "$agent_count agents installed to $AGENT_DIR/"
-else
-  yellow "warning: No agent files found in archive. The repo structure may have changed."
-fi
+green "  Agents: $agent_count installed (transformed for $RUNTIME)"
 
-# --- Claude Code-specific: create settings.json ------------------------------
+# --- Claude Code: settings.json ---------------------------------------------
 
 if [[ "$RUNTIME" == "claude-code" ]]; then
   SETTINGS_FILE="$OC_ROOT/settings.json"
-  if [[ -f "$SETTINGS_FILE" ]]; then
-    # Check if settings.json already has an agent setting
-    if grep -q '"agent"' "$SETTINGS_FILE" 2>/dev/null; then
-      yellow "settings.json already has an 'agent' setting — not overwriting."
-    else
-      backup_path "$SETTINGS_FILE"
-      cat > "$SETTINGS_FILE" <<- 'CFG'
-{
-  "agent": "pm-lead"
-}
-CFG
-      green "settings.json created: $SETTINGS_FILE"
-    fi
+  if [[ -f "$SETTINGS_FILE" ]] && grep -q '"agent"' "$SETTINGS_FILE" 2>/dev/null; then
+    yellow "  settings.json already has an 'agent' setting — not overwriting."
   else
+    backup_path "$SETTINGS_FILE"
     cat > "$SETTINGS_FILE" <<- 'CFG'
 {
-  "agent": "pm-lead"
+  "agent": "pm-lead",
+  "skills": {
+    "sources": [
+      {
+        "type": "file",
+        "path": "{{config_dir}}/skills/*/SKILL.md"
+      }
+    ]
+  }
 }
 CFG
-    green "settings.json created: $SETTINGS_FILE"
+    green "  settings.json created: $SETTINGS_FILE"
   fi
 fi
 
-# --- Store installed version -------------------------------------------------
+# --- Install daily check script ---------------------------------------------
+
+CRON_SOURCE="$EXTRACTED_DIR/scripts/pm-ahk-cron.sh"
+CRON_TARGET="$OC_ROOT/pm-ahk-cron.sh"
+if [[ -f "$CRON_SOURCE" ]]; then
+  cp "$CRON_SOURCE" "$CRON_TARGET"
+  chmod +x "$CRON_TARGET"
+  # Run it once to set the initial update flag
+  bash "$CRON_TARGET" 2>/dev/null || true
+  dim "  Update checker installed: $CRON_TARGET"
+fi
+
+# --- Store version ----------------------------------------------------------
 
 echo "$(cat "$EXTRACTED_DIR/VERSION" 2>/dev/null || echo 'unknown')" > "$VERSION_FILE"
-green "Version stored: $(cat "$VERSION_FILE")"
+FILE_VERSION="$(cat "$VERSION_FILE")"
+green "  Version: $FILE_VERSION"
 
-# --- Post-install hints -----------------------------------------------------
+# --- Post-install -----------------------------------------------------------
 
-cat <<EOF
+echo ""
+box_top
+box_title "  pm-agent-harness-kit installed!"
+box_line ""
+box_line "  Runtime:     $RUNTIME"
+box_line "  Skills:      $SKILL_COUNT"
+box_line "  Agents:      $agent_count  (pm-lead, explorer, strategist, builder,"
+box_line "                              reviewer, coach, smith)"
+box_line "  Version:     $FILE_VERSION"
+box_bot
+echo ""
+echo "  ${BOLD}Next:${RESET}"
+echo "    1. Restart $BINARY_NAME (if it was running)"
+echo "    2. $VERIFY_HINT"
+echo "    3. Ask pm-lead anything — it classifies and routes to specialist agents."
+echo ""
+echo "  ${BOLD}Try:${RESET}"
+echo "    \"Write a PRD for checkout v2\""
+echo "    \"Research our churn problem\""
+echo "    \"Am I ready for a Director role?\""
+echo ""
 
-$(green "pm-agent-harness-kit installed successfully!")
-$(green "  Skills:   $SKILL_DIR/ (59 skills)")
-$(green "  Agents:   $AGENT_DIR/ ($agent_count agents — pm-lead, pm-explorer, pm-strategist, pm-builder, pm-reviewer, pm-coach, pm-smith)")
-$(green "  Version:  $(cat "$VERSION_FILE")")
+# Show update hint if flag exists
+if [[ -f "$UPDATE_FLAG" ]]; then
+  NEW_VER="$(cat "$UPDATE_FLAG")"
+  yellow "  A newer version ($NEW_VER) is available."
+  yellow "  Run: curl -fsSL $BASE_URL/update.sh | bash"
+  echo ""
+fi
 
-Next:
-  1. If $BINARY_NAME was running, quit and restart it so it re-scans.
-  2. $VERIFY_HINT
-  3. Ask pm-lead anything — it classifies your request and routes to specialist agents.
+# Windows note
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    yellow "  Note: Native Windows is not supported. Run from WSL."
+    echo ""
+    ;;
+esac
 
-To check for updates:
-  curl -fsSL $BASE_URL/scripts/check-update.sh | bash
-
-To update:
-  curl -fsSL $BASE_URL/update.sh | bash
-
-To uninstall:
-  curl -fsSL $BASE_URL/uninstall.sh | TPM_TOOLS_RUNTIME=$RUNTIME bash
-
-Branch: $BRANCH
-Runtime: $RUNTIME
-EOF
+dim "  To check for updates: curl -fsSL $BASE_URL/scripts/check-update.sh | bash"
+dim "  To uninstall:         curl -fsSL $BASE_URL/uninstall.sh | TPM_TOOLS_RUNTIME=$RUNTIME bash"
+echo ""

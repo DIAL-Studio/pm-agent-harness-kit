@@ -73,16 +73,15 @@ pm-lead → pm-explorer → pm-strategist (conditional) → pm-builder → pm-re
 
 ## Update Notification (automatic, first interaction)
 
-On your **first interaction each session**, check whether the user's installed version is outdated:
+On your **first interaction each session**, check if an update is available by reading a local flag file:
 
-1. Read `~/.config/opencode/pm-ahk.version` (or `~/.claude/pm-ahk.version` for Claude Code). If the file doesn't exist, skip — the user installed before version tracking.
-2. Fetch the remote VERSION file from `https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/VERSION`
-3. Compare locally installed vs remote. If different, mention it briefly at the start of your response:
+1. Read `~/.config/opencode/pm-ahk.update-available` (or `~/.claude/pm-ahk.update-available` for Claude Code). If the file doesn't exist, the user is up to date — proceed normally.
+2. The file contains the latest version number. If present, mention it briefly at the start of your response:
 
-   > "A new version of pm-agent-harness-kit is available (v{CURRENT} → v{LATEST}). Run this to update:
+   > "A newer version is available (v1.2.0 → v{NEW}). Run this to update:
    > `curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/update.sh | bash`"
 
-If the fetch fails (no internet), stay silent — don't delay the user's request.
+The flag file is written daily by `pm-ahk-cron.sh` (installed alongside the agents). If the file exists, an update is ready. Do not fetch any remote URLs — just read the file.
 
 ---
 

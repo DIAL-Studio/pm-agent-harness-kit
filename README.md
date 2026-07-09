@@ -161,33 +161,28 @@ Track progress: [docs/ROADMAP.md](docs/ROADMAP.md)
 
 ## Install
 
-### One-liner (recommended, default runtime = opencode)
+### Interactive (default — recommended for new users)
 
-Installs the PM-AHK agents + all 59 skills:
+Run without flags. The installer detects your environment and prompts for runtime and path:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
 ```
 
-**After install:** Restart opencode, press **Tab**, and `pm-lead` is there with the full pipeline and skill library.
+**After install:** Restart your AI runtime and open `pm-lead` to start.
 
-### Choose a runtime
+### Silent (for scripts or when you know your runtime)
 
 ```bash
+curl -fsSL .../install.sh | TPM_TOOLS_RUNTIME=claude-code bash
 ./install.sh --runtime opencode
 ./install.sh --list-runtimes
 
-# curl | bash with env var
-curl -fsSL .../install.sh | TPM_TOOLS_RUNTIME=opencode bash
-
-# Pin a release
-TPM_TOOLS_BRANCH=v1.0.0 ./install.sh --runtime opencode
-
-# Custom config dir (opencode only)
-OPENCODE_CONFIG_DIR=/custom/path ./install.sh --runtime opencode
+# Pin a specific branch/release
+TPM_TOOLS_BRANCH=v1.2.0 ./install.sh --runtime opencode
 ```
 
-### One-liner uninstall
+### Uninstall
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/uninstall.sh | bash
@@ -195,58 +190,39 @@ curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/ma
 
 ### Update notifications
 
-There are four ways you'll know when a new version is available:
+Three ways you'll know when a new version is available:
 
 **1. Automatic — `pm-lead` tells you (recommended)**
 
-When you start a session with `pm-lead`, it automatically checks the installed version against the latest remote version. If an update is available, `pm-lead` mentions it in its first response with the update command. No action required from you.
+When you start a session with `pm-lead`, it reads a local flag file (`pm-ahk.update-available`). If an update is available, `pm-lead` mentions it in its first response with the update command. The flag file is updated daily by a background check script (installed automatically with the agents). No network calls from pm-lead, no delays.
 
 **2. Manual check**
 
 ```bash
+# Human-readable
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/scripts/check-update.sh | bash
-# Output: "Update available: v1.1.1 → v1.2.0"
-# Output: "Up to date (v1.1.1)"
+# Output: "Update available: v1.2.0 → v1.3.0"
 
-# Machine-readable output (for scripts, CI, shell prompts)
+# Machine-readable (for scripts, CI, shell prompts)
 curl -fsSL .../scripts/check-update.sh | bash -s -- --json
-# {"status":"update_available","installed":"1.1.1","latest":"1.2.0"}
+# {"status":"update_available","installed":"1.2.0","latest":"1.3.0"}
 ```
 
-**3. System notification (optional — cron/launchd)**
+**3. GitHub — watch the repo**
 
-Schedule daily checks that show a desktop notification when an update is available:
-
-```bash
-# Test it first
-curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/scripts/notify-update.sh | bash
-
-# macOS — add to launchd (runs daily)
-# Create ~/Library/LaunchAgents/com.pm-ahk.update-check.plist with:
-#   <string>curl -fsSL .../scripts/notify-update.sh | bash</string>
-#   <integer>86400</integer> (every 24h)
-
-# Linux — add to crontab
-# 0 10 * * * curl -fsSL .../scripts/notify-update.sh | bash
-```
-
-**4. GitHub — watch the repo**
-
-Star or watch [github.com/DIAL-Studio/pm-agent-harness-kit](https://github.com/DIAL-Studio/pm-agent-harness-kit) to receive GitHub notifications when a new release is published.
+Star or watch [github.com/DIAL-Studio/pm-agent-harness-kit](https://github.com/DIAL-Studio/pm-agent-harness-kit) to receive release notifications.
 
 ### Update to latest
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/update.sh | bash
-
-# Force re-install (skip version check)
-curl -fsSL .../update.sh | bash -s -- --force
-
-# Only check, don't install
-curl -fsSL .../update.sh | bash -s -- --check
 ```
 
-The installer backs up existing files before overwriting (`filename.bak.<timestamp>`). After updating, restart your AI runtime (opencode, Claude Code) for changes to take effect.
+The installer backs up existing files before overwriting. After updating, restart your AI runtime for changes to take effect.
+
+### Windows
+
+Windows native shells (PowerShell, Git Bash, Cygwin) are **not supported**. Use WSL (Windows Subsystem for Linux) — the installer works there natively. Run the `curl | bash` command from your WSL terminal.
 
 ### Remote discovery (optional, for advanced users)
 
