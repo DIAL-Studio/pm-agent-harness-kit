@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# pm-agent-harness-kit installer — copies the TPM agent and full skill library into the
+# pm-agent-harness-kit installer — copies the PM-AHK agents and full skill library into the
 # discovery paths of the chosen runtime. No config file edits required.
 #
 # Usage (default runtime: opencode):
@@ -61,7 +61,7 @@ EOF
 
 usage() {
   cat <<EOF
-pm-agent-harness-kit installer — TPM agent + full skill library
+pm-agent-harness-kit installer — PM-AHK agents + full skill library
 
 Usage:
   curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash
@@ -120,10 +120,10 @@ case "$RUNTIME" in
     OC_ROOT="${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}"
     SKILL_DIR="$OC_ROOT/skills"
     AGENT_DIR="$OC_ROOT/agents"
-    AGENT_FILE="$AGENT_DIR/tpm.md"
+    VERSION_FILE="$OC_ROOT/pm-ahk.version"
     BINARY_NAME="opencode"
     BINARY_URL="https://opencode.ai"
-    VERIFY_HINT="Press Tab to switch to the tpm primary agent."
+    VERIFY_HINT="Press Tab to switch to 'pm-lead' — the primary PM-AHK agent."
     ;;
   claude|copilot|cursor)
     red "runtime '$RUNTIME' is planned but not yet supported."
@@ -203,43 +203,37 @@ else
   die "No skills/ directory found in the archive."
 fi
 
-# --- Install agent ----------------------------------------------------------
+# --- Install agents ----------------------------------------------------------
 
-backup_path "$AGENT_FILE"
+# Remove old monolithic tpm.md if it exists (replaced by 7-agent harness)
+backup_path "$AGENT_DIR/tpm.md"
 
-if [[ -f "$EXTRACTED_DIR/agents/tpm.md" ]]; then
-  cp "$EXTRACTED_DIR/agents/tpm.md" "$AGENT_FILE"
-  green "Agent installed: $AGENT_FILE"
+cyan "Installing 7 PM-AHK agents..."
+
+agent_count=0
+for agent_file in "$EXTRACTED_DIR/agents"/*.md; do
+  agent_name="$(basename "$agent_file")"
+  # Skip README.md — it's documentation, not an agent
+  [[ "$agent_name" == "README.md" ]] && continue
+  # Skip archived files
+  [[ "$agent_name" == *.archived ]] && continue
+
+  target="$AGENT_DIR/$agent_name"
+  backup_path "$target"
+  cp "$agent_file" "$target"
+  ((agent_count++)) || true
+done
+
+if [[ $agent_count -gt 0 ]]; then
+  green "$agent_count agents installed to $AGENT_DIR/"
 else
-  die "Agent file not found in archive."
+  yellow "warning: No agent files found in archive. The repo structure may have changed."
 fi
 
-# --- Install config snippet (optional, user-facing) -------------------------
+# --- Store installed version -------------------------------------------------
 
-CONFIG_SNIPPET="$OC_ROOT/opencode-pm-agent-harness-kit.json"
-if [[ ! -f "$OC_ROOT/opencode.json" ]]; then
-  cat > "$CONFIG_SNIPPET" <<- 'CFG'
-{
-  "agent": {
-    "plan": {
-      "permission": {
-        "skill": {
-          "tpm-*": "allow",
-          "prd-*": "allow",
-          "user-story*": "allow",
-          "stakeholder-*": "allow",
-          "experiment-*": "allow",
-          "growth-*": "allow",
-          "strategy-*": "allow"
-        }
-      }
-    }
-  }
-}
-CFG
-  green "Config snippet created: $CONFIG_SNIPPET"
-  yellow "Merge this into your opencode.json to restrict skills to the plan agent."
-fi
+echo "$(cat "$EXTRACTED_DIR/VERSION" 2>/dev/null || echo 'unknown')" > "$VERSION_FILE"
+green "Version stored: $(cat "$VERSION_FILE")"
 
 # --- Post-install hints -----------------------------------------------------
 
@@ -247,12 +241,19 @@ cat <<EOF
 
 $(green "pm-agent-harness-kit installed successfully!")
 $(green "  Skills:   $SKILL_DIR/ (59 skills)")
-$(green "  Agent:    $AGENT_FILE")
+$(green "  Agents:   $AGENT_DIR/ ($agent_count agents — pm-lead, pm-explorer, pm-strategist, pm-builder, pm-reviewer, pm-coach, pm-smith)")
+$(green "  Version:  $(cat "$VERSION_FILE")")
 
 Next:
   1. If $BINARY_NAME was running, quit and restart it so it re-scans.
   2. $VERIFY_HINT
-  3. Ask the tpm agent for anything — the full skill library is available.
+  3. Ask pm-lead anything — it classifies your request and routes to specialist agents.
+
+To check for updates:
+  curl -fsSL $BASE_URL/scripts/check-update.sh | bash
+
+To update:
+  curl -fsSL $BASE_URL/update.sh | bash
 
 To uninstall:
   curl -fsSL $BASE_URL/uninstall.sh | TPM_TOOLS_RUNTIME=$RUNTIME bash

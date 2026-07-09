@@ -57,7 +57,8 @@ case "$RUNTIME" in
   opencode)
     OC_ROOT="${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}"
     SKILL_DIR="$OC_ROOT/skills"
-    AGENT_FILE="$OC_ROOT/agents/tpm.md"
+    AGENT_DIR="$OC_ROOT/agents"
+    VERSION_FILE="$OC_ROOT/pm-ahk.version"
     CONFIG_SNIPPET="$OC_ROOT/opencode-pm-agent-harness-kit.json"
     SKILL_NAMES=(
       acquisition-channel-advisor agent-orchestration-advisor
@@ -82,10 +83,15 @@ case "$RUNTIME" in
       user-story-mapping user-story-mapping-workshop user-story-splitting
       vp-cpo-readiness-advisor workshop-facilitation
     )
-    TARGETS=("$AGENT_FILE")
+    TARGETS=()
+    # All 7 PM-AHK agents + old tpm.md fallback
+    for agent in pm-lead pm-explorer pm-strategist pm-builder pm-reviewer pm-coach pm-smith tpm; do
+      TARGETS+=("$AGENT_DIR/${agent}.md")
+    done
     for name in "${SKILL_NAMES[@]}"; do
       TARGETS+=("$SKILL_DIR/$name")
     done
+    TARGETS+=("$VERSION_FILE")
     TARGETS+=("$CONFIG_SNIPPET")
     ;;
   claude|copilot|cursor)

@@ -193,6 +193,28 @@ OPENCODE_CONFIG_DIR=/custom/path ./install.sh --runtime opencode
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/uninstall.sh | bash
 ```
 
+### Check for updates
+
+```bash
+# Check if a newer version is available
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/scripts/check-update.sh | bash
+
+# Machine-readable output
+curl -fsSL .../scripts/check-update.sh | bash -s -- --json
+```
+
+### Update to latest
+
+```bash
+# Re-run the installer to pull the latest version
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/update.sh | bash
+
+# Force re-install even if already up to date
+curl -fsSL .../update.sh | bash -s -- --force
+```
+
+The installer backs up existing files before overwriting. Your customizations are preserved as `.bak.<timestamp>` files. After updating, restart opencode for changes to take effect.
+
 ### Remote discovery (optional, for advanced users)
 
 If you prefer to keep skills remote rather than vendored locally:
