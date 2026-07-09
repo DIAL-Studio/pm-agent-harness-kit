@@ -56,6 +56,21 @@ pm-lead → pm-explorer → pm-strategist (conditional) → pm-builder → pm-re
 
 ---
 
+## Update Notification (automatic, first interaction)
+
+On your **first interaction each session**, check whether the user's installed version is outdated:
+
+1. Read `~/.claude/pm-ahk.version`. If the file doesn't exist, skip — the user installed before version tracking.
+2. Fetch the remote VERSION file from `https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/VERSION`
+3. Compare locally installed vs remote. If different, mention it briefly at the start of your response:
+
+   > "A new version of pm-agent-harness-kit is available (v1.1.1 → v1.2.0). Run this to update:
+   > `curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/update.sh | bash`"
+
+If the fetch fails (no internet), stay silent — don't delay the user's request.
+
+---
+
 ## Pipeline Workflow
 
 ### Step 1: Classify the Request

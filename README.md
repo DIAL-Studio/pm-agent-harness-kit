@@ -193,27 +193,60 @@ OPENCODE_CONFIG_DIR=/custom/path ./install.sh --runtime opencode
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/uninstall.sh | bash
 ```
 
-### Check for updates
+### Update notifications
+
+There are four ways you'll know when a new version is available:
+
+**1. Automatic — `pm-lead` tells you (recommended)**
+
+When you start a session with `pm-lead`, it automatically checks the installed version against the latest remote version. If an update is available, `pm-lead` mentions it in its first response with the update command. No action required from you.
+
+**2. Manual check**
 
 ```bash
-# Check if a newer version is available
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/scripts/check-update.sh | bash
+# Output: "Update available: v1.1.1 → v1.2.0"
+# Output: "Up to date (v1.1.1)"
 
-# Machine-readable output
+# Machine-readable output (for scripts, CI, shell prompts)
 curl -fsSL .../scripts/check-update.sh | bash -s -- --json
+# {"status":"update_available","installed":"1.1.1","latest":"1.2.0"}
 ```
+
+**3. System notification (optional — cron/launchd)**
+
+Schedule daily checks that show a desktop notification when an update is available:
+
+```bash
+# Test it first
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/scripts/notify-update.sh | bash
+
+# macOS — add to launchd (runs daily)
+# Create ~/Library/LaunchAgents/com.pm-ahk.update-check.plist with:
+#   <string>curl -fsSL .../scripts/notify-update.sh | bash</string>
+#   <integer>86400</integer> (every 24h)
+
+# Linux — add to crontab
+# 0 10 * * * curl -fsSL .../scripts/notify-update.sh | bash
+```
+
+**4. GitHub — watch the repo**
+
+Star or watch [github.com/DIAL-Studio/pm-agent-harness-kit](https://github.com/DIAL-Studio/pm-agent-harness-kit) to receive GitHub notifications when a new release is published.
 
 ### Update to latest
 
 ```bash
-# Re-run the installer to pull the latest version
 curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/update.sh | bash
 
-# Force re-install even if already up to date
+# Force re-install (skip version check)
 curl -fsSL .../update.sh | bash -s -- --force
+
+# Only check, don't install
+curl -fsSL .../update.sh | bash -s -- --check
 ```
 
-The installer backs up existing files before overwriting. Your customizations are preserved as `.bak.<timestamp>` files. After updating, restart opencode for changes to take effect.
+The installer backs up existing files before overwriting (`filename.bak.<timestamp>`). After updating, restart your AI runtime (opencode, Claude Code) for changes to take effect.
 
 ### Remote discovery (optional, for advanced users)
 
