@@ -1,6 +1,6 @@
 ---
 description: Discovery agent — researches users, markets, and problems. Produces structured evidence. Read-only.
-mode: primary
+mode: all
 color: "#3B82F6"
 temperature: 0.3
 permission:
