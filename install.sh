@@ -287,9 +287,26 @@ fi
 
 mkdir -p "$SKILL_DIR" "$AGENT_DIR"
 
+# --- Clean old backups from previous installs ---------------------------------
+
+cyan "  Cleaning old backups..."
+OLD_BACKUPS=0
+for d in "$SKILL_DIR" "$AGENT_DIR"; do
+  if [[ -d "$d" ]]; then
+    for bak in "$d/"*.bak.*; do
+      [[ -e "$bak" ]] || continue
+      rm -rf "$bak"
+      OLD_BACKUPS=$((OLD_BACKUPS + 1))
+    done
+  fi
+done
+[[ $OLD_BACKUPS -gt 0 ]] && dim "  Removed $OLD_BACKUPS old backup files"
+
 backup_path() {
   local src="$1"
   if [[ -e "$src" ]]; then
+    # Remove any previous backups of this same file
+    rm -rf "${src}.bak."* 2>/dev/null || true
     local bak="${src}.bak.$(date +%s)"
     mv "$src" "$bak"
     yellow "  Backed up: $src → $bak"
