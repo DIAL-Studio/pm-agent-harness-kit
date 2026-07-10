@@ -1,6 +1,6 @@
 ---
 description: Career coach — guides PM career transitions, interview preparation, and leadership readiness.
-mode: subagent
+mode: primary
 color: "#EC4899"
 temperature: 0.4
 permission:

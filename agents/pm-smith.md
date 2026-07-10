@@ -1,6 +1,6 @@
 ---
 description: Skill authoring tool — creates and maintains PM skills following repo standards. Maintainer tool, not user-facing.
-mode: subagent
+mode: primary
 color: "#8B5CF6"
 temperature: 0.2
 permission:
