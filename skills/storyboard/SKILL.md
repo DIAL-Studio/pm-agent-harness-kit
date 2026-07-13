@@ -7,7 +7,7 @@ metadata:
   intent: >-
     Create a 6-frame visual narrative that tells the story of a user's journey from problem to solution, using the classic storytelling arc to build empathy, illustrate value, and make abstract product
     concepts concrete. Use this to align stakeholders, pitch features, communicate vision, or test if your solution resonates emotionally before building it.
-  type: component
+  type: interactive
 ---
 
 
@@ -67,7 +67,16 @@ Based on classic narrative arcs, the 6-frame format follows this pattern:
 
 ## Application
 
-Use `template.md` for the full fill-in structure.
+Use `template.md` for the full fill-in structure. Follow the [workshop-facilitation](../workshop-facilitation/SKILL.md) protocol for pacing, progress, and the A/B/C/D assumption clarification pattern.
+
+### Entry Mode
+
+```
+How do you want to define this storyboard?
+1) Guided — I'll ask about each frame, one at a time [6 frames]
+2) Context dump — paste the story, I'll break it into frames
+3) Best guess — I'll infer the narrative, label frames [ASSUMED]
+```
 
 ### Step 1: Gather Context
 Before creating the storyboard, ensure you have:
@@ -179,6 +188,23 @@ Ask these questions:
 6. **Is the "after" state aspirational?** Would users want this outcome?
 
 If any answer is "no," revise.
+
+---
+
+### Interactive Assumption Surfacing (Guided Mode)
+
+When in guided mode, use the [workshop-facilitation](../workshop-facilitation/SKILL.md) A/B/C/D/Other pattern for each frame. Progress bar shows `[■■■□□□] 3/6`:
+
+| # | Frame | Example question |
+|---|-------|-----------------|
+| 1 | **The User** | What's their emotional state at the start? A) Frustrated, B) Overwhelmed, C) Resigned, D) Hopeful |
+| 2 | **The Problem** | What triggers the problem? A) External event, B) Accumulated friction, C) Missed deadline, D) New requirement |
+| 3 | **The "Oh Crap"** | What makes it urgent? A) Financial loss, B) Reputation risk, C) Personal stress, D) Opportunity cost |
+| 4 | **The Solution Intro** | How do they discover the solution? A) Recommendation, B) Search, C) Ad, D) Already knew about it |
+| 5 | **The "Aha"** | What's the moment of clarity? A) First successful task, B) Time saved, C) Insight gained, D) Anxiety relieved |
+| 6 | **The After** | What's visibly different? A) Calmer, B) Faster output, C) Better decisions, D) Happier team |
+
+After all 6 frames, compile the storyboard and present for review.
 
 ---
 

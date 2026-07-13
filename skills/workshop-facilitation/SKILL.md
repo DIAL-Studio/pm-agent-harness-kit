@@ -51,21 +51,36 @@ Anything supplied with the invocation itself — text after the skill name, a pa
 3. Run one question per turn and wait for an answer before continuing.
 4. Keep questions plain-language; include a short example response format when helpful.
 5. Show progress each turn:
-   - `Context Qx/8` during context collection
-   - `Scoring Qx/5` during assessment/scoring
+   - **Visual progress bar:** `[■■■□□□□□] 3/8` — filled blocks = completed, empty = remaining. Prefer this over text-only labels.
+   - **Text label:** `Context Qx/8` during context collection, `Scoring Qx/5` during assessment.
 6. Ask follow-up clarifications only when they materially improve recommendation quality.
 7. For regular context/scoring questions, offer quick-select numbered response options when practical:
    - Keep options concise and mutually exclusive when possible.
    - Include `Other (specify)` if likely answers are open-ended.
    - Accept multi-select responses like `1,3` or `1 and 3`.
-8. Provide numbered recommendations only at decision points:
+8. **Assumption Clarification Pattern (A/B/C/D/Other):** When the skill needs to surface and resolve assumptions, use this format for each assumption. One assumption per turn — never batch:
+   ```
+   [■■■■□□□□] 4/8 — Assumption: [Short label]
+
+   [Assumed: summary of what was assumed]
+
+   A) [Option A — the most likely answer, often keeping the assumption as-is]
+   B) [Option B — the most probable alternative]
+   C) [Option C — another reasonable interpretation]
+   D) [Option D — a contrasting angle or edge case]
+   E) Other (I'll specify my own)
+   ```
+   - Options A-D must be concrete, distinct, and mutually exclusive. Each should be a decision the user can make without additional explanation.
+   - If user picks E, ask them to type their own. If user rejects all and doesn't want E, offer 4 new options.
+   - Always include the visual progress bar. User should know exactly how many assumptions remain.
+9. Provide numbered recommendations only at decision points:
    - after context synthesis,
    - after maturity/profile synthesis,
    - during priority/action-plan selection.
-9. Accept numeric or custom choices, synthesize multi-select choices, and continue.
-10. If interrupted by a meta question, answer directly, then restate progress and pending question.
-11. If the user says stop/pause, halt immediately and wait for explicit resume.
-12. End with a clear summary, decisions made, and (if best guess mode was used) an `Assumptions to Validate` list.
+10. Accept numeric or custom choices, synthesize multi-select choices, and continue.
+11. If interrupted by a meta question, answer directly, then restate progress and pending question.
+12. If the user says stop/pause, halt immediately and wait for explicit resume.
+13. End with a clear summary, decisions made, and (if best guess mode was used) an `Assumptions to Validate` list.
 
 ## Examples
 **Opening:**
@@ -87,7 +102,36 @@ Anything supplied with the invocation itself — text after the skill name, a pa
 
 **Facilitator:** "Great. We’ll run Context Design first, with Team-AI Facilitation in parallel."
 
-**Inline input at invocation:** when the user supplies context with the invocation itself, credit it as answers, open at the first unanswered question, and keep progress labels honest (start at `Context Q2/6` if Q1 was covered). Full transcript, including the re-asking anti-pattern: [examples/inline-input-flow.md](examples/inline-input-flow.md).
+**Inline input at invocation:** when the user supplies context with the invocation itself, credit it as answers, open at the first unanswered question, and keep progress labels honest. Full transcript: [examples/inline-input-flow.md](examples/inline-input-flow.md).
+
+**Assumption clarification with A/B/C/D/Other:**
+
+```
+[■■■■□□□□] 4/8 — Assumption: Target audience
+
+[Assumed: mid-market B2B SaaS companies with 50-200 employees]
+
+A) Mid-market B2B SaaS, 50-200 employees (no change)
+B) Enterprise B2B SaaS, 200+ employees
+C) SMB SaaS, 10-50 employees
+D) B2C subscription app, individual consumers
+E) Other (I'll specify my own)
+```
+
+User picks A → assumption confirmed, move to next. User picks E → ask for specification.
+
+**Fast path via Best guess mode:**
+```
+How do you want to proceed?
+1) Guided mode (I'll ask one assumption at a time)
+2) Context dump (paste what you know)
+3) Best guess (I'll infer assumptions and label them — you review)
+
+User: "3"
+
+[Agent produces the full output with all assumptions tagged [ASSUMED — review]. 
+User can then say "change assumption 3" to trigger a single A/B/C/D round.]
+```
 
 ## Common Pitfalls
 - Asking multiple questions in the same turn.

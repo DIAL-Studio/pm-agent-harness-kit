@@ -16,7 +16,7 @@ metadata:
     - "I need to write a positioning statement for a new B2B SaaS product targeting mid-market HR teams"
     - "Our positioning feels generic and I need to sharpen it against two specific competitors"
   theme: strategy-positioning
-  type: component
+  type: interactive
 ---
 
 
@@ -80,7 +80,16 @@ From *Crossing the Chasm*, Moore's framework splits positioning into two parts:
 
 ## Application
 
-Use `template.md` for the full fill-in structure.
+Use `template.md` for the full fill-in structure. Follow the [workshop-facilitation](../workshop-facilitation/SKILL.md) protocol for pacing, progress, and the A/B/C/D assumption clarification pattern.
+
+### Entry Mode
+
+```
+How do you want to define this positioning?
+1) Guided — I'll ask one positioning element at a time [5-6 rounds]
+2) Context dump — paste what you know, I'll fill the template
+3) Best guess — I'll infer from context, label all assumptions [ASSUMED]
+```
 
 ### Step 1: Gather Context
 Before drafting, ensure you have:
@@ -152,6 +161,23 @@ If any answer is "no" or "sort of," revise.
 - **Share with stakeholders:** Founders, execs, product, marketing, sales
 - **Test with customers:** Read it aloud. Do they nod or look confused?
 - **Refine ruthlessly:** Positioning is never done on the first draft. Cut words, sharpen specificity, test alternatives.
+
+---
+
+### Interactive Assumption Surfacing (Guided Mode)
+
+When in guided mode, use the [workshop-facilitation](../workshop-facilitation/SKILL.md) A/B/C/D/Other pattern. One positioning element per round, 5-6 total:
+
+| # | Element | Example |
+|---|---------|---------|
+| 1 | **Target customer** | A) Mid-market SaaS CTOs, B) Enterprise procurement, C) SMB founders, D) Individual developers |
+| 2 | **Underserved need** | A) Reduce tool sprawl, B) Speed up deployment, C) Lower costs, D) Improve collaboration |
+| 3 | **Market category** | A) Analytics platform, B) DevOps tool, C) Collaboration suite, D) Security solution |
+| 4 | **Key benefit** | A) 10x faster than alternatives, B) Half the cost, C) Only solution with X, D) Easiest to adopt |
+| 5 | **Primary alternative** | A) Competitor X, B) Manual process, C) In-house build, D) Status quo (doing nothing) |
+| 6 | **Differentiation** | A) Proprietary data, B) Unique integration, C) Superior UX, D) Open source |
+
+After all rounds, compile using `template.md` and present for review.
 
 ---
 

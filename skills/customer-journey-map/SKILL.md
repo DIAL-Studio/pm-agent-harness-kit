@@ -16,7 +16,7 @@ metadata:
     - "I need to map the customer journey for our B2B SaaS onboarding experience from signup to first value"
     - "Create a journey map for a PM leader evaluating our skills repo — from discovery through loyalty"
   theme: workshops-facilitation
-  type: component
+  type: interactive
 ---
 
 
@@ -84,7 +84,16 @@ Adapted from NNGroup's framework and Carnegie Mellon's PM curriculum, a customer
 
 ## Application
 
-Use `template.md` for the full fill-in structure.
+Use `template.md` for the full fill-in structure. Follow the [workshop-facilitation](../workshop-facilitation/SKILL.md) protocol for pacing, progress, and the A/B/C/D assumption clarification pattern.
+
+### Entry Mode
+
+```
+How do you want to define this journey?
+1) Guided — I'll walk through each journey stage, one assumption at a time [5-7 stages]
+2) Context dump — paste what you know, I'll build the map
+3) Best guess — I'll infer from context, label assumptions [ASSUMED]
+```
 
 ### Step 1: Prepare Prerequisites
 
@@ -269,6 +278,24 @@ Review the map and ask:
 - **Update regularly:** Customer behavior changes—revisit the map quarterly
 - **Validate with data:** Use analytics, surveys, and customer interviews to confirm assumptions
 - **Track improvements:** After making changes, measure impact on KPIs
+
+---
+
+### Interactive Assumption Surfacing (Guided Mode)
+
+When in guided mode, use the [workshop-facilitation](../workshop-facilitation/SKILL.md) A/B/C/D/Other pattern for each journey stage. One stage per round, 5-7 total:
+
+| # | Stage | Example question |
+|---|-------|-----------------|
+| 1 | **Awareness** | How do they discover the product? A) Search engine, B) Social media, C) Word of mouth, D) Ads |
+| 2 | **Consideration** | What do they compare? A) Competitor features, B) Price, C) Reviews, D) Free trial |
+| 3 | **Purchase** | What's the biggest barrier? A) Price, B) Trust, C) Complexity, D) Approval process |
+| 4 | **Onboarding** | Dominant emotion during setup? A) Excitement, B) Frustration, C) Confusion, D) Satisfaction |
+| 5 | **Usage** | Primary friction in daily use? A) Too slow, B) Missing features, C) Hard to learn, D) No friction |
+| 6 | **Support** | How do they seek help? A) Docs/self-serve, B) Chat/email support, C) Community, D) They don't |
+| 7 | **Advocacy** | What triggers recommendation? A) Saved money, B) Saved time, C) Delighted by UX, D) Wouldn't recommend |
+
+After all rounds, compile using `template.md` and present for review.
 
 ---
 

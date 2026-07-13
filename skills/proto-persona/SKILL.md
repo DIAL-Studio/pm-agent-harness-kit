@@ -7,7 +7,7 @@ metadata:
   intent: >-
     Create an initial, assumption-based persona profile that synthesizes available user research, market data, and stakeholder knowledge into a working hypothesis about your target user. Use this to align
     teams early in product development, guide initial design decisions, and identify gaps in understanding that require validation through research.
-  type: component
+  type: interactive
 ---
 
 
@@ -72,7 +72,21 @@ A proto-persona is a lightweight, hypothesis-driven persona created from:
 
 ## Application
 
-Use `template.md` for the full fill-in structure.
+Use `template.md` for the full fill-in structure. Follow the [workshop-facilitation](../workshop-facilitation/SKILL.md) protocol for pacing, progress, and the A/B/C/D assumption clarification pattern.
+
+### Entry Mode
+Before building the persona, ask how the user wants to proceed:
+
+```
+How do you want to define this persona?
+1) Guided mode — I'll ask one assumption at a time with a progress bar
+2) Context dump — paste what you already know, I'll fill gaps
+3) Best guess — I'll infer from your description and label all assumptions [ASSUMED]
+```
+
+- **Guided mode:** Go through Steps 1-6 interactively using the A/B/C/D pattern for each assumption category.
+- **Context dump:** Accept freeform input at Step 1, then fill the persona template directly.
+- **Best guess:** Extract what you can from the user's description, infer the rest, tag all unverified fields `[ASSUMED]`, and present the completed persona for review.
 
 ### Step 1: Gather Available Context
 Before creating a proto-persona, collect:
@@ -247,6 +261,25 @@ What beliefs and attitudes shape their decisions?
 - **Identify gaps:** What don't we know? (Add "[ASSUMPTION—VALIDATE]" tags where uncertain)
 - **Plan research:** Use the proto-persona to guide who to interview next
 - **Evolve it:** As you learn, update the proto-persona (or graduate it to a validated persona)
+
+---
+
+### Interactive Assumption Surfacing (Guided Mode)
+
+When in guided mode, use the [workshop-facilitation](../workshop-facilitation/SKILL.md) A/B/C/D/Other pattern for these assumption categories. One at a time, 5-8 rounds total:
+
+| # | Assumption Category | Example question |
+|---|-------------------|-----------------|
+| 1 | **Primary goal** | What is their main objective? A) Save time, B) Save money, C) Increase revenue, D) Reduce risk |
+| 2 | **Experience level** | How familiar are they with this type of product? A) Expert, B) Intermediate, C) Beginner, D) Never used |
+| 3 | **Decision authority** | Who makes the purchase decision? A) The user themselves, B) Their manager, C) A procurement team, D) Shared decision |
+| 4 | **Key frustration** | What frustrates them most about current solutions? A) Too expensive, B) Too complex, C) Too slow, D) Missing critical features |
+| 5 | **Success metric** | How do they measure success? A) Time saved, B) Revenue generated, C) Tasks completed, D) Team satisfaction |
+| 6 | **Context of use** | Where/when do they use the product? A) Desktop at office, B) Mobile on-the-go, C) Both equally, D) Embedded in another tool |
+| 7 | **Switching trigger** | What would make them switch from current solution? A) Price, B) Feature gap filled, C) Better UX, D) Integration needs |
+| 8 | **Tech comfort** | How comfortable are they with technology? A) Very comfortable, B) Comfortable with guidance, C) Prefer simplicity, D) Actively avoid tech |
+
+After all rounds, compile the persona using `template.md` and present for final review.
 
 ---
 

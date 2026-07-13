@@ -8,7 +8,7 @@ metadata:
     Frame epics as testable hypotheses using an if/then structure that articulates the action or solution, the target beneficiary, the expected outcome, and how you'll validate success. Use this to manage
     uncertainty in product development by making assumptions explicit, defining lightweight experiments ("tiny acts of discovery"), and establishing measurable success criteria before committing to full
     build-out.
-  type: component
+  type: interactive
 ---
 
 
@@ -79,7 +79,16 @@ Inspired by Tim Herbig's Lean UX hypothesis format, the structure is:
 
 ## Application
 
-Use `template.md` for the full fill-in structure.
+Use `template.md` for the full fill-in structure. Follow the [workshop-facilitation](../workshop-facilitation/SKILL.md) protocol for pacing, progress, and the A/B/C/D assumption clarification pattern.
+
+### Entry Mode
+
+```
+How do you want to define this hypothesis?
+1) Guided — I'll ask one assumption at a time [5 rounds]
+2) Context dump — paste what you know, I'll fill the template
+3) Best guess — I'll infer from context, label assumptions [ASSUMED]
+```
 
 ### Step 1: Gather Context
 Before drafting an epic hypothesis, ensure you have:
@@ -199,6 +208,22 @@ Once the hypothesis is validated, break the epic into user stories:
 2. [User Story 2]
 3. [User Story 3]
 ```
+
+---
+
+### Interactive Assumption Surfacing (Guided Mode)
+
+When in guided mode, use the [workshop-facilitation](../workshop-facilitation/SKILL.md) A/B/C/D/Other pattern. One assumption per round, 5 total:
+
+| # | Assumption | Example |
+|---|-----------|---------|
+| 1 | **Target user** | A) Power users only, B) All users, C) New users only, D) Specific segment |
+| 2 | **Expected outcome** | A) +15% conversion, B) -30% churn, C) 2x adoption, D) Measurable but TBD |
+| 3 | **Validation method** | A) A/B test, B) User interviews, C) Analytics cohort, D) Prototype + usability test |
+| 4 | **Success threshold** | A) Statistical significance (p<0.05), B) Directional signal, C) Qualitative consensus, D) Revenue impact |
+| 5 | **Time to validate** | A) 2 weeks, B) 1 month, C) 1 quarter, D) 2+ quarters |
+
+After all rounds, compile using `template.md` and present for review.
 
 ---
 
