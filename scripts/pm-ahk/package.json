@@ -1,0 +1,25 @@
+{
+  "name": "pm-agent-harness-kit",
+  "version": "2.2.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "pm-ahk": "./bin/pm-ahk.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.17",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.5.0"
+  }
+}
