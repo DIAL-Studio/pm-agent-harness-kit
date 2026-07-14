@@ -464,8 +464,6 @@ if $WITH_MCP; then
       (cd "$PM_AHK_DST" && npm ci --silent 2>/dev/null && npm run build --silent 2>/dev/null) || {
         yellow "  npm build failed — will use pre-built if available"
       }
-      # Remove node_modules (not needed at runtime with pre-built dist)
-      rm -rf "$PM_AHK_DST/node_modules"
       MCP_CMD="node"
       MCP_ARGS="[\"${PM_AHK_DST}/bin/pm-ahk.js\", \"serve\", \"--db\", \"${OC_ROOT}/.harness/harness.db\"]"
     else

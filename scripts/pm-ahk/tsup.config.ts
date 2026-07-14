@@ -11,4 +11,5 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
+  shims: true,
 })
