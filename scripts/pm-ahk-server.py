@@ -78,9 +78,16 @@ def get_conn():
     return _ahk.get_conn(DB_PATH)
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/mcp", methods=["GET", "POST"])
+@app.route("/mcp/", methods=["GET", "POST"])
 @app.route("/sse", methods=["GET"])
 def root():
+    """MCP endpoint — SSE for GET, JSON-RPC for POST."""
+    if flask.request.method == "POST":
+        return handle_mcp_request()
+    
+    # GET: SSE endpoint
+    return sse_stream()
     """Root endpoint — SSE for GET, JSON-RPC for POST."""
     if flask.request.method == "POST":
         return handle_mcp_request()
