@@ -21,6 +21,7 @@ import http.server
 import json
 import os
 import sqlite3
+import socketserver
 import sys
 import textwrap
 import webbrowser
@@ -519,6 +520,7 @@ class DashboardHandler(http.server.BaseHTTPRequestHandler):
             content_type = "text/html"
         self.send_response(200)
         self.send_header("Content-Type", content_type)
+        self.send_header("Connection", "close")
         self.end_headers()
         self.wfile.write(file_path.read_bytes())
 
@@ -605,7 +607,7 @@ def cmd_dashboard(db_path: str | Path, port: int = 5432, no_open: bool = False) 
     DashboardHandler.conn = conn
     DashboardHandler.protocol_version = "HTTP/1.1"
 
-    server = http.server.HTTPServer(("127.0.0.1", port), DashboardHandler)
+    server = socketserver.ThreadingTCPServer(("127.0.0.1", port), DashboardHandler)
     url = f"http://localhost:{port}"
     print(f"\n  {green('Dashboard')}: {bold(url)}")
     print(f"  {dim('Press Ctrl+C to stop.')}\n")
