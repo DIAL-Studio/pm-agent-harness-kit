@@ -499,20 +499,22 @@ def cmd_initiative(args: argparse.Namespace, db_path: str | Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=f"pm-agent-harness-kit MCP harness v{VERSION}")
     parser.add_argument("--version", action="version", version=VERSION)
-    parser.add_argument("--db", help="Path to harness.db (default: auto-detected)")
 
     sub = parser.add_subparsers(dest="command")
 
-    sub.add_parser("serve", help="Start MCP server (stdio JSON-RPC)")
+    serve_p = sub.add_parser("serve", help="Start MCP server (stdio JSON-RPC)")
+    serve_p.add_argument("--db", help="Path to harness.db")
     init_p = sub.add_parser("init", help="Initialize harness database")
     init_p.add_argument("--scope", choices=["global", "project"], default="global",
                         help="Install scope (default: global)")
     status_p = sub.add_parser("status", help="Show initiative backlog")
+    status_p.add_argument("--db", help="Path to harness.db")
 
-    init_p = sub.add_parser("initiative", help="Manage initiatives")
-    init_p.add_argument("action", choices=["add", "list", "done"])
-    init_p.add_argument("id_or_slug", nargs="?", help="ID or slug for 'done' action")
-    init_p.add_argument("--status", help="Filter list by status")
+    initiative_p = sub.add_parser("initiative", help="Manage initiatives")
+    initiative_p.add_argument("action", choices=["add", "list", "done"])
+    initiative_p.add_argument("id_or_slug", nargs="?", help="ID or slug for 'done' action")
+    initiative_p.add_argument("--status", help="Filter list by status")
+    initiative_p.add_argument("--db", help="Path to harness.db")
 
     opts = parser.parse_args()
 
