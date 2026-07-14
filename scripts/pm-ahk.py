@@ -17,11 +17,13 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import http.server
 import json
 import os
 import sqlite3
 import sys
 import textwrap
+import webbrowser
 from pathlib import Path
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -104,7 +106,7 @@ STATUS_FLOW = ["pending", "discovery", "strategy", "spec", "review", "approved",
 
 
 def get_conn(db_path: str | Path) -> sqlite3.Connection:
-    conn = sqlite3.connect(str(db_path))
+    conn = sqlite3.connect(str(db_path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
@@ -494,6 +496,129 @@ def cmd_initiative(args: argparse.Namespace, db_path: str | Path) -> None:
     conn.close()
 
 
+# ── Dashboard HTTP server ─────────────────────────────────────────────────────
+
+DASHBOARD_DIR = Path(__file__).resolve().parent.parent / "dashboard" / "dist"
+
+class DashboardHandler(http.server.BaseHTTPRequestHandler):
+    conn: sqlite3.Connection = None  # type: ignore
+
+    def log_message(self, *a): pass
+
+    def _json(self, data: dict | list, status: int = 200) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
+
+    def _serve_file(self, path: str, content_type: str) -> None:
+        file_path = DASHBOARD_DIR / path.lstrip("/")
+        if not file_path.exists() or not file_path.is_file():
+            file_path = DASHBOARD_DIR / "index.html"
+            content_type = "text/html"
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.end_headers()
+        self.wfile.write(file_path.read_bytes())
+
+    def do_GET(self) -> None:
+        path = self.path.split("?")[0]
+
+        if path == "/api/overview":
+            self._json(_api_overview(self.conn))
+        elif path.startswith("/api/initiatives/"):
+            parts = path.split("/")
+            if len(parts) == 4 and parts[3].isdigit():
+                self._json(_api_initiative(self.conn, int(parts[3])))
+            else:
+                self._json({"error": "invalid id"}, 404)
+        elif path == "/api/initiatives":
+            self._json(_api_initiatives(self.conn))
+        elif path == "/api/agents":
+            self._json(_api_agents(self.conn))
+        elif path.startswith("/api/"):
+            self._json({"error": "not found"}, 404)
+        elif path == "/" or path == "":
+            self._serve_file("/index.html", "text/html")
+        elif path.endswith(".js"):
+            self._serve_file(path, "application/javascript")
+        elif path.endswith(".css"):
+            self._serve_file(path, "text/css")
+        else:
+            self._serve_file(path, "text/html")
+
+
+def _api_overview(conn: sqlite3.Connection) -> dict:
+    cur = conn.cursor()
+    statuses = ["discovery", "strategy", "spec", "review", "approved", "blocked", "done"]
+    counts = {}
+    for s in statuses:
+        cur.execute("SELECT COUNT(*) FROM initiatives WHERE status = ?", (s,))
+        counts[s] = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT a.agent, a.action_type, i.title, a.created_at
+        FROM actions a JOIN initiatives i ON a.initiative_id = i.id
+        ORDER BY a.created_at DESC LIMIT 15
+    """)
+    recent = [{"agent": r[0], "action_type": r[1], "title": r[2], "created_at": r[3]} for r in cur.fetchall()]
+
+    return {"discovery": counts.get("discovery", 0), "strategy": counts.get("strategy", 0),
+            "spec": counts.get("spec", 0), "review": counts.get("review", 0),
+            "approved": counts.get("approved", 0), "blocked": counts.get("blocked", 0),
+            "done": counts.get("done", 0), "recent_actions": recent}
+
+
+def _api_initiatives(conn: sqlite3.Connection) -> list[dict]:
+    cur = conn.execute("SELECT id, slug, title, description, status, created_at, updated_at FROM initiatives ORDER BY id")
+    return [dict(r) for r in cur.fetchall()]
+
+
+def _api_initiative(conn: sqlite3.Connection, initiative_id: int) -> dict:
+    cur = conn.execute("SELECT id, slug, title, description, status, created_at, updated_at FROM initiatives WHERE id = ?",
+                       (initiative_id,))
+    row = cur.fetchone()
+    if not row:
+        return {"error": "not found"}
+    initiative = dict(row)
+    cur.execute("SELECT agent, action_type, content, created_at FROM actions WHERE initiative_id = ? ORDER BY created_at",
+               (initiative_id,))
+    actions = [dict(r) for r in cur.fetchall()]
+    cur.execute("SELECT id, criterion, met FROM criteria WHERE initiative_id = ? ORDER BY id",
+               (initiative_id,))
+    criteria = [dict(r) for r in cur.fetchall()]
+    return {"initiative": initiative, "actions": actions, "criteria": criteria}
+
+
+def _api_agents(conn: sqlite3.Connection) -> list[dict]:
+    cur = conn.execute("""
+        SELECT agent, COUNT(*) as total_actions, COUNT(DISTINCT initiative_id) as initiatives_count
+        FROM actions GROUP BY agent ORDER BY total_actions DESC
+    """)
+    return [dict(r) for r in cur.fetchall()]
+
+
+def cmd_dashboard(db_path: str | Path, port: int = 5432, no_open: bool = False) -> None:
+    """Start a local HTTP dashboard server."""
+    conn = get_conn(db_path)
+    DashboardHandler.conn = conn
+    DashboardHandler.protocol_version = "HTTP/1.1"
+
+    server = http.server.HTTPServer(("127.0.0.1", port), DashboardHandler)
+    url = f"http://localhost:{port}"
+    print(f"\n  {green('Dashboard')}: {bold(url)}")
+    print(f"  {dim('Press Ctrl+C to stop.')}\n")
+    if not no_open:
+        webbrowser.open(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print()
+    finally:
+        conn.close()
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -509,6 +634,10 @@ def main() -> None:
                         help="Install scope (default: global)")
     status_p = sub.add_parser("status", help="Show initiative backlog")
     status_p.add_argument("--db", help="Path to harness.db")
+    dash_p = sub.add_parser("dashboard", help="Start local web dashboard")
+    dash_p.add_argument("--port", type=int, default=5432, help="Port (default: 5432)")
+    dash_p.add_argument("--no-open", action="store_true", help="Don't open browser")
+    dash_p.add_argument("--db", help="Path to harness.db")
 
     initiative_p = sub.add_parser("initiative", help="Manage initiatives")
     initiative_p.add_argument("action", choices=["add", "list", "done"])
@@ -540,6 +669,9 @@ def main() -> None:
         cmd_status(db_path)
     elif opts.command == "initiative":
         cmd_initiative(opts, db_path)
+    elif opts.command == "dashboard":
+        init_db(db_path)
+        cmd_dashboard(db_path, port=opts.port, no_open=opts.no_open)
 
 
 if __name__ == "__main__":

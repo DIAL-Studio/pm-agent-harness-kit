@@ -145,12 +145,16 @@ For projects running both PM-AHK and [agent-harness-kit](https://github.com/enma
 
 ---
 
-## Phase 7 — PM Decision Dashboard
+## Phase 7 — PM Decision Dashboard (DONE)
 
-- [ ] Visualize pipeline state: what's in discovery, in spec, in review, blocked, approved
-- [ ] Decision log: what was decided, by whom, based on what evidence
-- [ ] Timeline view: initiative lifecycle from problem statement to validated deliverable
-- [ ] Web UI with real-time updates (parallel to AHK's `ahk dashboard`)
+- [x] Web UI with React 19 + Vite 7 + TailwindCSS 4 (styled like AHK's dashboard)
+- [x] Overview: pipeline status cards + recent activity feed
+- [x] Initiatives table: sortable, filterable by status, expand to detail
+- [x] Initiative detail: agent action timeline + acceptance criteria checklist
+- [x] `pm-ahk dashboard` command starts local HTTP server on port 5432
+- [x] API endpoints: `/api/overview`, `/api/initiatives`, `/api/initiatives/:id`, `/api/agents`
+- [x] Auto-refresh every 3 seconds via polling
+- [x] Dashboard built with `npm run build`; pre-built `dashboard/dist/` committed
 
 ---
 
