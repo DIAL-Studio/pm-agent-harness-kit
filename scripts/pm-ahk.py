@@ -599,6 +599,8 @@ MCP_TOOLS = [
 
 def cmd_serve(db_path: str | Path) -> None:
     """Start MCP server - reads JSON-RPC from stdin, writes to stdout."""
+    sys.stderr.write(f"[pm-ahk] MCP server starting (stdio)\n")
+    sys.stderr.flush()
     conn = get_conn(db_path)
     init_db(db_path)
     migrate_schema(conn)  # add new columns from v2.1.0+
