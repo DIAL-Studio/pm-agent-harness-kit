@@ -13,11 +13,24 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 function resolveDbPath(dbOpt?: string): string {
   if (dbOpt) return dbOpt
-  // Default: use global path (MCP server is configured with --db global)
-  const global = resolve(homedir(), '.config', 'opencode', '.harness', 'harness.db')
-  if (existsSync(global)) return global
-  // Fallback: local project path
-  return resolve(process.cwd(), '.harness', 'harness.db')
+  // Read DB path from opencode.json MCP config (canonical source)
+  const configPaths = [
+    resolve(homedir(), '.config', 'opencode', 'opencode.json'),     // global install
+    resolve(process.cwd(), '.opencode', 'opencode.json'),            // local project
+    resolve(process.cwd(), 'opencode.json'),                          // cwd
+  ]
+  for (const cfgPath of configPaths) {
+    try {
+      const cfg = JSON.parse(readFileSync(cfgPath, 'utf8'))
+      const cmd = cfg?.mcp?.['pm-ahk']?.command
+      if (Array.isArray(cmd)) {
+        const idx = cmd.indexOf('--db')
+        if (idx !== -1 && cmd[idx + 1]) return resolve(dirname(cfgPath), cmd[idx + 1])
+      }
+    } catch { /* try next */ }
+  }
+  // Ultimate fallback
+  return resolve(homedir(), '.config', 'opencode', '.harness', 'harness.db')
 }
 
 const program = new Command()
