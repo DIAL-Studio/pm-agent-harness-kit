@@ -498,7 +498,7 @@ def cmd_initiative(args: argparse.Namespace, db_path: str | Path) -> None:
 
 # ── Dashboard HTTP server ─────────────────────────────────────────────────────
 
-DASHBOARD_DIR = Path(__file__).resolve().parent.parent / "dashboard" / "dist"
+DASHBOARD_DIR = Path(__file__).resolve().parent / "pm-ahk-dashboard"
 
 class DashboardHandler(http.server.BaseHTTPRequestHandler):
     conn: sqlite3.Connection = None  # type: ignore

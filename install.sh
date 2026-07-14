@@ -459,6 +459,12 @@ if $WITH_MCP; then
       cp "$EXTRACTED_DIR/scripts/pm-ahk" "$OC_ROOT/pm-ahk"
       chmod +x "$OC_ROOT/pm-ahk" "$OC_ROOT/pm-ahk.py"
 
+      # Copy dashboard dist/
+      if [[ -d "$EXTRACTED_DIR/dashboard/dist" ]]; then
+        mkdir -p "$OC_ROOT/pm-ahk-dashboard"
+        cp -r "$EXTRACTED_DIR/dashboard/dist/"* "$OC_ROOT/pm-ahk-dashboard/"
+      fi
+
       # Initialize harness
       python3 "$OC_ROOT/pm-ahk.py" init --scope "$SCOPE" 2>&1 | tail -n +2
       green "  MCP harness installed"
