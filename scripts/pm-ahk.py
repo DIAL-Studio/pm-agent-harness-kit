@@ -28,7 +28,7 @@ from pathlib import Path
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-VERSION = "1.7.0"
+VERSION = "1.9.2"
 REPO_OWNER = "DIAL-Studio"
 REPO_NAME = "pm-agent-harness-kit"
 REMOTE_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main"
