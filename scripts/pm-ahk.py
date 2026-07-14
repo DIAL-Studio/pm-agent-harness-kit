@@ -209,17 +209,16 @@ def init_db(db_path: str | Path) -> None:
 # ── MCP Protocol (JSON-RPC over stdio, binary I/O) ───────────────────────────
 
 def mcp_read() -> dict | None:
-    """Read a JSON-RPC message from stdin (binary mode)."""
+    """Read a JSON-RPC message from stdin (via os.read for unbuffered I/O)."""
     try:
-        # Read header: "Content-Length: N\r\n"
         header = b""
         while True:
-            ch = sys.stdin.buffer.read(1)
+            ch = os.read(0, 1)  # unbuffered read from fd 0
             if not ch:
-                return None  # EOF
-            if ch == b"\r":
-                # Consume the \n
-                sys.stdin.buffer.read(1)
+                return None
+            if ch in (b"\r", b"\n"):
+                if ch == b"\r":
+                    os.read(0, 1)
                 break
             header += ch
 
@@ -227,19 +226,28 @@ def mcp_read() -> dict | None:
             return None
 
         length = int(header.split(b":")[1].strip())
-        # Read blank line \r\n
-        sys.stdin.buffer.read(2)
-        # Read exactly N bytes of JSON body
+        # Consume blank line
+        blank = os.read(0, 1)
+        if blank == b"\r":
+            os.read(0, 1)
+        # Read exactly N bytes
         body = b""
         while len(body) < length:
-            chunk = sys.stdin.buffer.read(length - len(body))
+            chunk = os.read(0, length - len(body))
             if not chunk:
-                return None  # EOF
+                return None
             body += chunk
 
         return json.loads(body.decode("utf-8"))
     except Exception:
         return None
+
+
+def mcp_send(obj: dict) -> None:
+    """Send a JSON-RPC message to stdout (binary)."""
+    body = json.dumps(obj).encode("utf-8")
+    sys.stdout.buffer.write(f"Content-Length: {len(body)}\r\n\r\n".encode() + body)
+    sys.stdout.buffer.flush()
 
 
 def mcp_send(obj: dict) -> None:
@@ -608,7 +616,12 @@ def cmd_serve(db_path: str | Path) -> None:
     while True:
         req = mcp_read()
         if req is None:
+            sys.stderr.write("[pm-ahk] EOF on stdin, exiting\n")
+            sys.stderr.flush()
             break
+        
+        sys.stderr.write(f"[pm-ahk] Got request: {req.get('method')}\n")
+        sys.stderr.flush()
 
         req_id = req.get("id")
         method = req.get("method", "")
