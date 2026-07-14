@@ -346,6 +346,7 @@ def cmd_serve(db_path: str | Path) -> None:
 
         if method == "initialize":
             mcp_send({"jsonrpc": "2.0", "result": {"protocolVersion": "2024-11-05",
+                       "serverInfo": {"name": "pm-ahk", "version": "1.9.9"},
                        "capabilities": {"tools": {}}}, "id": req_id})
 
         elif method == "tools/list":

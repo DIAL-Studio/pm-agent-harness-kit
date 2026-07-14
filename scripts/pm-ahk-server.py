@@ -150,7 +150,8 @@ def handle_mcp_request():
     try:
         result = None
         if method == "initialize":
-            result = {"protocolVersion": "2024-11-05", "capabilities": {"tools": {}}}
+            result = {"protocolVersion": "2024-11-05", "serverInfo": {"name": "pm-ahk", "version": "1.9.9"},
+                      "capabilities": {"tools": {}}}
         elif method == "tools/list":
             result = {"tools": MCP_TOOLS}
         elif method == "tools/call":
