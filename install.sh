@@ -465,8 +465,8 @@ if $WITH_MCP; then
         cp -r "$EXTRACTED_DIR/dashboard/dist/"* "$OC_ROOT/pm-ahk-dashboard/"
       fi
 
-      # Initialize harness
-      python3 "$OC_ROOT/pm-ahk.py" init --scope "$SCOPE" 2>&1 | tail -n +2
+      # Initialize harness (quiet — config snippet not needed, install handles it)
+      python3 "$OC_ROOT/pm-ahk.py" init --scope "$SCOPE" 2>&1 >/dev/null
 
       # Register MCP server in opencode.json (HTTP MCP)
       if [[ "$RUNTIME" == "opencode" && -f "$OC_ROOT/opencode.json" ]]; then
@@ -552,14 +552,6 @@ echo "    2. $VERIFY_HINT"
 echo "    3. Ask pm-lead anything — it classifies and routes to specialist agents."
 echo ""
 
-# MCP server hint (visible right after "Next:")
-if $WITH_MCP; then
-  echo "  ${BOLD}MCP: Start the harness server:${RESET}"
-  echo "    $OC_ROOT/pm-ahk-start"
-  dim "    or: python3 $OC_ROOT/pm-ahk-server.py --port 5431 --db $OC_ROOT/.harness/harness.db"
-  echo "    ${DIM}Then check:${RESET} $OC_ROOT/pm-ahk status"
-  echo ""
-fi
 
 # Project-scope gitignore hint
 if [[ "$SCOPE" == "project" ]]; then
@@ -593,3 +585,12 @@ esac
 dim "  To check for updates: curl -fsSL $BASE_URL/scripts/check-update.sh | bash"
 dim "  To uninstall:         curl -fsSL $BASE_URL/uninstall.sh | TPM_TOOLS_RUNTIME=$RUNTIME bash"
 echo ""
+
+# --- MCP start command (last thing user sees) ---
+if $WITH_MCP; then
+  echo ""
+  echo "  ${BOLD}MCP: Start the harness server:${RESET}"
+  echo "    $OC_ROOT/pm-ahk-start"
+  echo "    ${DIM}Then check:${RESET} $OC_ROOT/pm-ahk status"
+  echo ""
+fi
