@@ -523,7 +523,7 @@ SCRIPT
       fi
 
       green "  MCP harness installed"
-      dim "  Run '$OC_ROOT/pm-ahk status' to see the backlog"
+      dim "  Start: $OC_ROOT/pm-ahk-start"
     else
     yellow "  Python 3.8+ required for MCP harness. Found: $(python3 --version 2>/dev/null || echo 'not found')"
     fi
@@ -586,11 +586,3 @@ dim "  To check for updates: curl -fsSL $BASE_URL/scripts/check-update.sh | bash
 dim "  To uninstall:         curl -fsSL $BASE_URL/uninstall.sh | TPM_TOOLS_RUNTIME=$RUNTIME bash"
 echo ""
 
-# --- MCP start command (last thing user sees) ---
-if $WITH_MCP; then
-  echo ""
-  echo "  ${BOLD}MCP: Start the harness server:${RESET}"
-  echo "    $OC_ROOT/pm-ahk-start"
-  echo "    ${DIM}Then check:${RESET} $OC_ROOT/pm-ahk status"
-  echo ""
-fi
