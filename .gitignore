@@ -223,4 +223,9 @@ docs/marketplace/
 
 # Claude Code — generated at install time by transform-frontmatter.sh
 .claude/
+
+# MCP Harness (Phase 5)
+.harness/
+.harness/harness.db
+.harness/current.md
 *.png

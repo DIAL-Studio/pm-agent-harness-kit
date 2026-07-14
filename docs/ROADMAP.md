@@ -116,16 +116,20 @@
 
 ---
 
-## Phase 5 — Level 2: Harness Infrastructure
+## Phase 5 — Level 2: Harness Infrastructure (DONE)
 
 The full AHK-equivalent infrastructure that makes agents work as a coordinated system rather than independent tools:
 
-- [ ] **Initiative backlog** — track what's in discovery/spec/review across sessions (parallel to AHK's `feature_list.json`)
-- [ ] **Action audit trail** — log what each agent produced, when, based on what evidence (parallel to AHK's `actions.*` MCP tools)
-- [ ] **Quality gate** — enforce that Explorer evidence exists before Builder can start (parallel to AHK's `health.sh`)
-- [ ] **Atomic claiming** — prevent two agents from working the same initiative (parallel to AHK's `tasks.claim`)
-- [ ] **Agent sync script** — `pm-ahk build` regenerates agent files from canonical source, provider-adaptive (parallel to AHK's `ahk build`)
-- [ ] **MCP server** — expose PM-specific tools: task management, artifact tracking, evidence validation
+- [x] **Initiative backlog** — `initiatives.create/list/claim` with SQLite backing (Python, zero deps)
+- [x] **Action audit trail** — `actions.write/get` logs every agent's output per initiative
+- [x] **Atomic claiming** — `initiatives.claim()` uses SQLite transaction (prevents double-work)
+- [x] **MCP server** — `pm-ahk serve` exposes 12 tools via JSON-RPC over stdio
+- [x] **Handoff protocol** — `handoff.read()` lets next agent read previous agent's output
+- [x] **CLI commands** — `pm-ahk init|status|initiative add/list/done`
+- [x] **Agent integration** — all 4 pipeline agents have MCP fallback instructions
+- [ ] **Quality gate** — enforce Explorer evidence exists before Builder can start (deferred, needs initiative status validation)
+- [ ] **Agent sync script** — `pm-ahk build` regenerates agent files (deferred)
+- [ ] **Criteria management** — `criteria.add/list/check` implemented, needs agent workflow integration
 
 ---
 

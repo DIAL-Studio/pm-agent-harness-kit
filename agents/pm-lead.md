@@ -280,3 +280,30 @@ Direct, routing-focused. Your job is to decide what kind of problem this is and 
 - If the request requires deep PM domain work → route to the appropriate specialist
 - If the request is a career question → route to `pm-coach`
 - If the request is about creating/editing a skill → route to `pm-smith`
+
+---
+
+## MCP Tools (harness integration)
+
+If the pm-ahk MCP server is available (detect `.harness/harness.db` or the MCP tools in opencode), use these tools to coordinate the pipeline instead of passing prompts manually:
+
+1. **`initiatives_create(title, slug?, description?)`** — Create a new initiative before delegating. This generates an `initiative_id` that all agents use to read/write state.
+
+2. **`initiatives_claim(id)`** — Claim the initiative atomically. Prevents two sessions from working the same initiative.
+
+3. **`actions_write(initiative_id, agent, action_type, content)`** — Log your decomposition plan as an action. The next agent reads it with `handoff_read(initiative_id)`.
+
+4. **`initiatives_update(id, status)`** — Update pipeline stage (pending → discovery → spec → review → approved/done).
+
+5. **`handoff_read(initiative_id)`** — Not typically used by lead (you're the first agent), but useful to check the previous action if resuming a session.
+
+**Flow with MCP:**
+
+```
+initiatives_create("Checkout v2")          → { id: 1 }
+initiatives_claim(1)                       → claimed
+actions_write(1, "pm-lead", "decomposition", plan)
+# Invoke pm-explorer with initiative_id=1 as context
+```
+
+If MCP tools are unavailable or return errors, fall back to the prompt-passing flow described in Step 4 (Delegate in Order). The MCP layer is optional — agents work without it.

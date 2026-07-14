@@ -19,6 +19,7 @@ BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 ARCHIVE_URL="https://github.com/${REPO}/archive/${BRANCH}.tar.gz"
 RUNTIME="${TPM_TOOLS_RUNTIME:-}"
 SCOPE="${TPM_TOOLS_SCOPE:-}"
+WITH_MCP=false
 NON_INTERACTIVE=false
 SKILL_COUNT=0
 
@@ -86,6 +87,7 @@ Usage:
 Flags:
   --runtime <id>       Choose runtime (silent mode — no prompts)
   --scope <id>         Install globally or in current project (global|project)
+  --with-mcp           Also install MCP harness (initiative backlog, audit trail)
   --non-interactive    Fail if --runtime is not set
   --list-runtimes      Print all known runtimes and exit
   -h, --help           Show this help
@@ -106,6 +108,7 @@ while [[ $# -gt 0 ]]; do
     --runtime=*)         RUNTIME="${1#*=}"; shift ;;
     --scope)             SCOPE="${2:-}"; shift 2 ;;
     --scope=*)           SCOPE="${1#*=}"; shift ;;
+    --with-mcp)          WITH_MCP=true; shift ;;
     --non-interactive)   NON_INTERACTIVE=true; shift ;;
     --list-runtimes)     list_runtimes; exit 0 ;;
     -h|--help)           usage; exit 0 ;;
@@ -443,6 +446,31 @@ fi
 echo "$(cat "$EXTRACTED_DIR/VERSION" 2>/dev/null || echo 'unknown')" > "$VERSION_FILE"
 FILE_VERSION="$(cat "$VERSION_FILE")"
 green "  Version: $FILE_VERSION"
+
+# --- MCP Harness (Phase 5) ---------------------------------------------------
+
+if $WITH_MCP; then
+  if has python3; then
+    PY_VER="$(python3 --version 2>/dev/null | cut -d' ' -f2 | cut -d. -f1)"
+    if [[ "$PY_VER" -ge 3 ]]; then
+      # Copy MCP scripts
+      mkdir -p "$OC_ROOT"
+      cp "$EXTRACTED_DIR/scripts/pm-ahk.py" "$OC_ROOT/pm-ahk.py"
+      cp "$EXTRACTED_DIR/scripts/pm-ahk" "$OC_ROOT/pm-ahk"
+      chmod +x "$OC_ROOT/pm-ahk" "$OC_ROOT/pm-ahk.py"
+
+      # Initialize harness
+      python3 "$OC_ROOT/pm-ahk.py" init --scope "$SCOPE" 2>&1 | tail -n +2
+      green "  MCP harness installed"
+      dim "  Run '$OC_ROOT/pm-ahk status' to see the backlog"
+    else
+    yellow "  Python 3.8+ required for MCP harness. Found: $(python3 --version 2>/dev/null || echo 'not found')"
+    fi
+  else
+    yellow "  Python 3 not found. MCP harness requires Python 3.12+."
+    yellow "  Install from https://python.org and re-run with --with-mcp"
+  fi
+fi
 
 # --- Post-install -----------------------------------------------------------
 

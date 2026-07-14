@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# pm-ahk — CLI wrapper for the MCP harness (Phase 5)
+# Usage: pm-ahk init | serve | status | initiative
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/pm-ahk.py" "$@"

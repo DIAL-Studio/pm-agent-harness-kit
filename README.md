@@ -249,6 +249,23 @@ curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/ma
 
 The installer backs up existing files before overwriting. After updating, restart your AI runtime for changes to take effect.
 
+### MCP Harness (Phase 5 — initiative backlog + audit trail)
+
+For multi-session pipelines, cross-agent state management, and a persistent audit trail, add the MCP harness:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DIAL-Studio/pm-agent-harness-kit/main/install.sh | bash -s -- --with-mcp
+```
+
+This creates a SQLite-backed system with:
+
+- **Initiative backlog** — track what's in discovery/spec/review across sessions
+- **Atomic claiming** — prevents two agents from working the same initiative
+- **Action audit trail** — every agent's output is logged and queryable
+- **Handoff protocol** — agents read each other's structured output (no manual prompt passing)
+
+Requires Python 3.12+. Run `pm-ahk status` to see the backlog. Full docs in [docs/ROADMAP.md](docs/ROADMAP.md).
+
 ### Windows
 
 Windows native shells (PowerShell, Git Bash, Cygwin) are **not supported**. Use WSL (Windows Subsystem for Linux) — the installer works there natively. Run the `curl | bash` command from your WSL terminal.
