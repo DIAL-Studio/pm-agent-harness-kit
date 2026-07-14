@@ -350,7 +350,7 @@ backup_path() {
     rm -rf "${src}.bak."* 2>/dev/null || true
     local bak="${src}.bak.$(date +%s)"
     mv "$src" "$bak"
-    yellow "  Backed up: $src → $bak"
+    dim "  Backed up: $src"
   fi
 }
 
