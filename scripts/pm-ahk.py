@@ -21,7 +21,6 @@ import datetime
 import http.server
 import json
 import os
-import select
 import sqlite3
 import socketserver
 import sys
@@ -209,29 +208,29 @@ def init_db(db_path: str | Path) -> None:
 
 # ── MCP Protocol (JSON-RPC over stdio, binary I/O) ───────────────────────────
 
-def _read_fd(n: int = 1) -> bytes | None:
-    """Read n bytes from stdin, handling EAGAIN/EWOULDBLOCK."""
-    while True:
-        try:
-            data = os.read(0, n)
-            return data
-        except BlockingIOError:
-            select.select([0], [], [], 0.1)
-        except OSError:
+def _read_n(n: int) -> bytes | None:
+    """Read exactly n bytes from stdin (blocking). Returns None on EOF."""
+    data = b""
+    while len(data) < n:
+        chunk = os.read(0, n - len(data))
+        if not chunk:
             return None
+        data += chunk
+    return data
 
 
 def mcp_read() -> dict | None:
-    """Read a JSON-RPC message from stdin (via os.read for unbuffered I/O)."""
+    """Read a JSON-RPC message from stdin (Content-Length format)."""
     try:
+        # Read header line: "Content-Length: NNN\r\n" or "Content-Length: NNN\n"
         header = b""
         while True:
-            ch = _read_fd()
-            if ch is None or ch == b"":
+            ch = _read_n(1)
+            if ch is None:
                 return None
-            if ch in (b"\r", b"\n"):
-                if ch == b"\r":
-                    _read_fd()
+            if ch[0] in (0x0D, 0x0A):  # \r or \n
+                if ch[0] == 0x0D:
+                    _read_n(1)  # consume \n
                 break
             header += ch
 
@@ -239,19 +238,18 @@ def mcp_read() -> dict | None:
             return None
 
         length = int(header.split(b":")[1].strip())
-        # Consume blank line
-        blank = _read_fd()
-        if blank is None:
+
+        # Consume the blank line separating header from body
+        sep = _read_n(1)
+        if sep is None:
             return None
-        if blank == b"\r":
-            _read_fd()
+        if sep[0] == 0x0D:  # \r
+            _read_n(1)  # consume \n
+
         # Read exactly N bytes
-        body = b""
-        while len(body) < length:
-            chunk = _read_fd(length - len(body))
-            if chunk is None or chunk == b"":
-                return None
-            body += chunk
+        body = _read_n(length)
+        if body is None:
+            return None
 
         return json.loads(body.decode("utf-8"))
     except Exception as exc:
@@ -261,14 +259,7 @@ def mcp_read() -> dict | None:
 
 
 def mcp_send(obj: dict) -> None:
-    """Send a JSON-RPC message to stdout (binary)."""
-    body = json.dumps(obj).encode("utf-8")
-    sys.stdout.buffer.write(f"Content-Length: {len(body)}\r\n\r\n".encode() + body)
-    sys.stdout.buffer.flush()
-
-
-def mcp_send(obj: dict) -> None:
-    """Send a JSON-RPC message to stdout (binary mode)."""
+    """Send a JSON-RPC message to stdout (Content-Length format)."""
     body = json.dumps(obj).encode("utf-8")
     sys.stdout.buffer.write(f"Content-Length: {len(body)}\r\n\r\n".encode())
     sys.stdout.buffer.write(body)
@@ -626,6 +617,11 @@ def cmd_serve(db_path: str | Path) -> None:
     """Start MCP server - reads JSON-RPC from stdin, writes to stdout."""
     sys.stderr.write(f"[pm-ahk] MCP server starting (stdio)\n")
     sys.stderr.flush()
+    # Ensure stdin is in blocking mode (opencode may set O_NONBLOCK on pipes)
+    try:
+        os.set_blocking(0, True)
+    except OSError:
+        pass
     conn = get_conn(db_path)
     init_db(db_path)
     migrate_schema(conn)  # add new columns from v2.1.0+
