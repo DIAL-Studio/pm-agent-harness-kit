@@ -455,6 +455,9 @@ if $WITH_MCP; then
     PM_AHK_SRC="$EXTRACTED_DIR/scripts/pm-ahk"
     PM_AHK_DST="$OC_ROOT/pm-ahk"
     if [[ -d "$PM_AHK_SRC" ]]; then
+      # Remove old Python artifacts (v2.0.x) that conflict with TypeScript (v2.2.0+)
+      [[ -f "$OC_ROOT/pm-ahk.py" ]] && rm -f "$OC_ROOT/pm-ahk.py"
+      [[ -f "$OC_ROOT/pm-ahk" ]] && rm -f "$OC_ROOT/pm-ahk"
       mkdir -p "$PM_AHK_DST"
       # Copy full source, install deps, and build
       cp -r "$PM_AHK_SRC/"* "$PM_AHK_DST/"
@@ -471,6 +474,22 @@ if $WITH_MCP; then
     fi
 
     if [[ -n "$MCP_CMD" ]]; then
+      # Remove old Python MCP config from opencode.json if present
+      if [[ -f "$OC_ROOT/opencode.json" ]]; then
+        python3 <<- PYEOF
+import json
+cfg_path = "${OC_ROOT}/opencode.json"
+cfg = json.load(open(cfg_path))
+mcp = cfg.get("mcp", {})
+pm = mcp.get("pm-ahk", {})
+cmd = pm.get("command", [])
+# If old config points to python3, remove it so we re-register
+if isinstance(cmd, list) and any("python3" in str(c) or ".py" in str(c) for c in cmd):
+    mcp.pop("pm-ahk", None)
+json.dump(cfg, open(cfg_path, "w"), indent=2)
+PYEOF
+      fi
+
       # Copy dashboard dist/
       if [[ -d "$EXTRACTED_DIR/dashboard/dist" ]]; then
         mkdir -p "$OC_ROOT/pm-ahk-dashboard"
