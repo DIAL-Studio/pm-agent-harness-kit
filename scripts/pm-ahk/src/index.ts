@@ -117,7 +117,17 @@ program
     const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
     const port = parseInt(opts.port, 10)
     const db = new PmAhkDB(dbPath)
-    const staticDir = resolve(__dirname, '..', '..', 'dashboard', 'dist')
+    // Try multiple possible dashboard locations
+    const candidates = [
+      resolve(__dirname, '..', '..', '..', 'dashboard', 'dist'),        // repo: tpm-tools/scripts/pm-ahk/dist -> ../../../
+      resolve(__dirname, '..', '..', 'dashboard', 'dist'),              // repo: tpm-tools/scripts/pm-ahk/dist -> ../../
+      resolve(__dirname, '..', '..', 'pm-ahk-dashboard'),               // installed: ~/.config/opencode/pm-ahk/dist -> ../pm-ahk-dashboard
+    ]
+    const staticDir = candidates.find((d) => existsSync(join(d, 'index.html')))
+    if (!staticDir) {
+      console.error('Dashboard not found. Run: bash install.sh --with-mcp')
+      process.exit(1)
+    }
 
     const MIME: Record<string, string> = {
       '.html': 'text/html; charset=utf-8',
