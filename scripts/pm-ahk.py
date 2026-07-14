@@ -79,9 +79,11 @@ CREATE TABLE IF NOT EXISTS initiatives (
   slug TEXT UNIQUE,
   title TEXT NOT NULL,
   description TEXT,
-  status TEXT NOT NULL DEFAULT 'pending',
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK(status IN ('pending','discovery','strategy','spec','review','approved','blocked','done')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  archived_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS actions (
@@ -90,8 +92,31 @@ CREATE TABLE IF NOT EXISTS actions (
   agent TEXT NOT NULL,
   action_type TEXT NOT NULL,
   content TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'in_progress'
+    CHECK(status IN ('in_progress','completed')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  completed_at TEXT,
+  summary TEXT,
   FOREIGN KEY (initiative_id) REFERENCES initiatives(id)
+);
+
+CREATE TABLE IF NOT EXISTS action_files (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  action_id INTEGER NOT NULL,
+  file_path TEXT NOT NULL,
+  operation TEXT NOT NULL CHECK(operation IN ('read','created','modified','deleted')),
+  notes TEXT,
+  FOREIGN KEY (action_id) REFERENCES actions(id)
+);
+
+CREATE TABLE IF NOT EXISTS action_tools (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  action_id INTEGER NOT NULL,
+  tool_name TEXT NOT NULL,
+  args_json TEXT,
+  result_summary TEXT,
+  called_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (action_id) REFERENCES actions(id)
 );
 
 CREATE TABLE IF NOT EXISTS criteria (
@@ -103,6 +128,46 @@ CREATE TABLE IF NOT EXISTS criteria (
   FOREIGN KEY (initiative_id) REFERENCES initiatives(id)
 );
 """
+
+
+def migrate_schema(conn: sqlite3.Connection) -> None:
+    """Add missing columns/tables to existing databases (safe idempotent)."""
+    cur = conn.cursor()
+    # Actions table evolution
+    for col, typ in [("status", "TEXT NOT NULL DEFAULT 'completed'"),
+                     ("completed_at", "TEXT"),
+                     ("summary", "TEXT")]:
+        try:
+            cur.execute(f"ALTER TABLE actions ADD COLUMN {col} {typ}")
+        except sqlite3.OperationalError:
+            pass
+    # Initiatives: archived_at
+    try:
+        cur.execute("ALTER TABLE initiatives ADD COLUMN archived_at TEXT")
+    except sqlite3.OperationalError:
+        pass
+    # New tables (CREATE IF NOT EXISTS — safe for all DBs)
+    cur.execute("""CREATE TABLE IF NOT EXISTS action_files (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_id INTEGER NOT NULL,
+        file_path TEXT NOT NULL,
+        operation TEXT NOT NULL CHECK(operation IN ('read','created','modified','deleted')),
+        notes TEXT,
+        FOREIGN KEY (action_id) REFERENCES actions(id))""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS action_tools (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_id INTEGER NOT NULL,
+        tool_name TEXT NOT NULL,
+        args_json TEXT,
+        result_summary TEXT,
+        called_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (action_id) REFERENCES actions(id))""")
+    # Backfill status on existing actions
+    try:
+        cur.execute("UPDATE actions SET status = 'completed' WHERE status IS NULL OR status NOT IN ('in_progress','completed')")
+    except sqlite3.OperationalError:
+        pass
+    conn.commit()
 
 STATUS_FLOW = ["pending", "discovery", "strategy", "spec", "review", "approved", "blocked", "done"]
 
@@ -283,6 +348,105 @@ def handle_tool_call(conn: sqlite3.Connection, tool: str, args: dict) -> dict | 
         conn.commit()
         return {"id": args["id"], "met": True}
 
+    elif tool == "initiatives.edit":
+        iid = args["id"]
+        updates = []
+        vals = []
+        if "title" in args:
+            updates.append("title = ?")
+            vals.append(args["title"])
+        if "description" in args:
+            updates.append("description = ?")
+            vals.append(args["description"])
+        if not updates:
+            return {"error": "no fields to edit"}
+        updates.append("updated_at = datetime('now')")
+        vals.append(iid)
+        cur.execute(f"UPDATE initiatives SET {', '.join(updates)} WHERE id = ?", vals)
+        conn.commit()
+        return {"id": iid, "edited": True}
+
+    elif tool == "initiatives.archive":
+        iid = args["id"]
+        cur.execute("UPDATE initiatives SET archived_at = datetime('now'), updated_at = datetime('now') WHERE id = ?", (iid,))
+        conn.commit()
+        return {"id": iid, "archived": True}
+
+    elif tool == "initiatives.unarchive":
+        iid = args["id"]
+        cur.execute("UPDATE initiatives SET archived_at = NULL, updated_at = datetime('now') WHERE id = ?", (iid,))
+        conn.commit()
+        return {"id": iid, "unarchived": True}
+
+    elif tool == "actions.start":
+        cur.execute("INSERT INTO actions (initiative_id, agent, action_type, content, status) VALUES (?, ?, ?, '', 'in_progress')",
+                    (args["initiative_id"], args["agent"], args.get("action_type", "action")))
+        conn.commit()
+        action_id = cur.lastrowid
+        return {"action_id": action_id, "status": "in_progress"}
+
+    elif tool == "actions.complete":
+        aid = args["action_id"]
+        summary = args.get("summary", "")
+        cur.execute("UPDATE actions SET status = 'completed', completed_at = datetime('now'), summary = ? WHERE id = ?",
+                    (summary, aid))
+        conn.commit()
+        return {"action_id": aid, "status": "completed"}
+
+    elif tool in ("actions.record_file", "actions.record.file"):
+        cur.execute("INSERT INTO action_files (action_id, file_path, operation, notes) VALUES (?, ?, ?, ?)",
+                    (args["action_id"], args["file_path"], args.get("operation", "modified"), args.get("notes", "")))
+        conn.commit()
+        return {"id": cur.lastrowid, "file_path": args["file_path"]}
+
+    elif tool in ("actions.record_tool", "actions.record.tool"):
+        cur.execute("INSERT INTO action_tools (action_id, tool_name, args_json, result_summary) VALUES (?, ?, ?, ?)",
+                    (args["action_id"], args["tool_name"], args.get("args_json", ""), args.get("result_summary", "")))
+        conn.commit()
+        return {"id": cur.lastrowid, "tool_name": args["tool_name"]}
+
+    elif tool == "skills.search":
+        query = args.get("query", "")
+        # Search skills dir: check installed path first, then repo path
+        base = Path(__file__).resolve().parent
+        skills_dir = base / "skills"
+        if not skills_dir.exists():
+            skills_dir = base.parent / "skills"
+        results = []
+        if skills_dir.exists():
+            for skill_dir in skills_dir.iterdir():
+                if not skill_dir.is_dir() or skill_dir.name.startswith("."):
+                    continue
+                skill_md = skill_dir / "SKILL.md"
+                if skill_md.exists():
+                    content = skill_md.read_text()
+                    if query.lower() in content.lower():
+                        desc = ""
+                        for line in content.split("\n"):
+                            if line.startswith("description:"):
+                                desc = line.split(":", 1)[1].strip()
+                                break
+                        results.append({"name": skill_dir.name, "description": desc})
+        return results[:20]  # max 20 results
+
+    elif tool == "pmahk.doctor":
+        lib_version = VERSION
+        cur.execute("PRAGMA database_list")
+        db_info = cur.fetchone()
+        db_path = dict(db_info).get("file", "unknown") if db_info else "unknown"
+        # Check both paths (installed + repo)
+        base = Path(__file__).resolve().parent
+        agent_dir = base / "agents"
+        if not agent_dir.exists():
+            agent_dir = base.parent / "agents"
+        skills_dir = base / "skills"
+        if not skills_dir.exists():
+            skills_dir = base.parent / "skills"
+        agents_present = [f.stem for f in agent_dir.glob("pm-*.md")] if agent_dir.exists() else []
+        skill_count = len([d for d in skills_dir.iterdir() if d.is_dir() and not d.name.startswith(".")]) if skills_dir.exists() else 0
+        return {"lib_version": lib_version, "agents": sorted(agents_present),
+                "skills_count": skill_count, "db": db_path}
+
     return {"error": f"unknown tool: {tool}"}
 
 
@@ -326,14 +490,45 @@ MCP_TOOLS = [
      "inputSchema": {"type": "object", "properties": {"initiative_id": {"type": "integer"}}, "required": ["initiative_id"]}},
     {"name": "criteria_check", "description": "Mark an acceptance criterion as met (reviewer only)",
      "inputSchema": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}},
-]
+    # -- v2.1: AHK parity tools --
+    {"name": "initiatives_edit", "description": "Edit initiative title or description",
+     "inputSchema": {"type": "object", "properties": {
+         "id": {"type": "integer"}, "title": {"type": "string"}, "description": {"type": "string"}}, "required": ["id"]}},
+    {"name": "initiatives_archive", "description": "Archive an initiative",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}},
+    {"name": "initiatives_unarchive", "description": "Unarchive an initiative",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}},
+    {"name": "actions_start", "description": "Start a new action, returns action_id",
+     "inputSchema": {"type": "object", "properties": {
+         "initiative_id": {"type": "integer"}, "agent": {"type": "string"}, "action_type": {"type": "string"}},
+     "required": ["initiative_id", "agent"]}},
+    {"name": "actions_complete", "description": "Close an action with a summary",
+     "inputSchema": {"type": "object", "properties": {
+         "action_id": {"type": "integer"}, "summary": {"type": "string"}}, "required": ["action_id"]}},
+    {"name": "actions_record_file", "description": "Record a file/artifact touched by an action",
+     "inputSchema": {"type": "object", "properties": {
+         "action_id": {"type": "integer"}, "file_path": {"type": "string"},
+         "operation": {"type": "string"}, "notes": {"type": "string"}},
+     "required": ["action_id", "file_path"]}},
+    {"name": "actions_record_tool", "description": "Record a PM skill used during an action",
+     "inputSchema": {"type": "object", "properties": {
+         "action_id": {"type": "integer"}, "tool_name": {"type": "string"},
+         "args_json": {"type": "string"}, "result_summary": {"type": "string"}},
+     "required": ["action_id", "tool_name"]}},
+    {"name": "skills_search", "description": "Search the PM skills library",
+     "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
+    {"name": "pmahk_doctor", "description": "Check harness version, agent files, and skills sync status",
+     "inputSchema": {"type": "object", "properties": {}}},
+ ]
 
 
 # ── MCP serve loop ───────────────────────────────────────────────────────────
 
 def cmd_serve(db_path: str | Path) -> None:
-    """Start MCP server — reads JSON-RPC from stdin, writes to stdout."""
+    """Start MCP server - reads JSON-RPC from stdin, writes to stdout."""
     conn = get_conn(db_path)
+    init_db(db_path)
+    migrate_schema(conn)  # add new columns from v2.1.0+
 
     while True:
         req = mcp_read()
@@ -346,7 +541,7 @@ def cmd_serve(db_path: str | Path) -> None:
 
         if method == "initialize":
             mcp_send({"jsonrpc": "2.0", "result": {"protocolVersion": "2024-11-05",
-                       "serverInfo": {"name": "pm-ahk", "version": "1.9.9"},
+                       "serverInfo": {"name": "pm-ahk", "version": VERSION},
                        "capabilities": {"tools": {}}}, "id": req_id})
 
         elif method == "tools/list":
