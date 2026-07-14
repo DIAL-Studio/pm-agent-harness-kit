@@ -1,10 +1,14 @@
 import { Command } from 'commander'
-import { resolve } from 'node:path'
-import { existsSync } from 'node:fs'
+import { resolve, join, dirname, extname } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { createServer } from 'node:http'
 import { PmAhkDB } from './core/db'
 import { startMcpServer } from './core/mcp-server'
 
 const VERSION = '2.2.0'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const program = new Command()
 
@@ -102,5 +106,135 @@ program
         db.close()
       }),
   )
+
+program
+  .command('dashboard')
+  .description('Start the dashboard web server')
+  .option('--port <port>', 'HTTP port', '3000')
+  .option('--db <path>', 'Path to the SQLite database')
+  .option('--no-open', 'Do not open browser')
+  .action(async (opts) => {
+    const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
+    const port = parseInt(opts.port, 10)
+    const db = new PmAhkDB(dbPath)
+    const staticDir = resolve(__dirname, '..', '..', 'dashboard', 'dist')
+
+    const MIME: Record<string, string> = {
+      '.html': 'text/html; charset=utf-8',
+      '.js': 'application/javascript; charset=utf-8',
+      '.css': 'text/css; charset=utf-8',
+      '.json': 'application/json; charset=utf-8',
+      '.svg': 'image/svg+xml',
+      '.png': 'image/png',
+      '.ico': 'image/x-icon',
+      '.woff': 'font/woff',
+      '.woff2': 'font/woff2',
+      '.ttf': 'font/ttf',
+    }
+
+    const server = createServer((req, res) => {
+      const url = new URL(req.url ?? '/', `http://${req.headers.host}`)
+      const path = url.pathname
+
+      // ── API: /api/overview ──────────────────────────────────────────────────
+      if (path === '/api/overview') {
+        const initiatives = db.listInitiatives()
+        const statusCounts: Record<string, number> = {
+          discovery: 0, strategy: 0, spec: 0, review: 0,
+          approved: 0, blocked: 0, done: 0,
+        }
+        for (const i of initiatives) {
+          if (i.status in statusCounts) statusCounts[i.status]++
+        }
+        const recentActions = db.listInitiatives().slice(0, 10).flatMap((i) =>
+          db.getActionsForInitiative(i.id).slice(0, 5).map((a) => ({
+            agent: a.agent, action_type: a.action_type,
+            title: i.title, created_at: a.created_at,
+          }))
+        )
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ ...statusCounts, recent_actions: recentActions.slice(0, 10) }))
+        return
+      }
+
+      // ── API: /api/initiatives ────────────────────────────────────────────────
+      if (path === '/api/initiatives') {
+        const status = url.searchParams.get('status') ?? undefined
+        const initiatives = db.listInitiatives(status)
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(initiatives))
+        return
+      }
+
+      // ── API: /api/initiatives/:id ─────────────────────────────────────────────
+      const detailMatch = path.match(/^\/api\/initiatives\/(\d+)$/)
+      if (detailMatch) {
+        const id = parseInt(detailMatch[1], 10)
+        const initiative = db.getInitiative(id)
+        if (!initiative) {
+          res.writeHead(404)
+          res.end('Not found')
+          return
+        }
+        const actions = db.getActionsForInitiative(id)
+        const criteria = db.listCriteria(id)
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ initiative, actions, criteria }))
+        return
+      }
+
+      // ── API: /api/agents ──────────────────────────────────────────────────────
+      if (path === '/api/agents') {
+        const initiatives = db.listInitiatives()
+        const agentMap = new Map<string, { total_actions: number; initiatives_count: number }>()
+        for (const i of initiatives) {
+          const actions = db.getActionsForInitiative(i.id)
+          for (const a of actions) {
+            const entry = agentMap.get(a.agent) ?? { total_actions: 0, initiatives_count: 0 }
+            entry.total_actions++
+            agentMap.set(a.agent, entry)
+          }
+          if (actions.length > 0) {
+            const seen = new Set<string>()
+            for (const a of actions) {
+              if (!seen.has(a.agent)) {
+                seen.add(a.agent)
+                const entry = agentMap.get(a.agent)!
+                entry.initiatives_count++
+              }
+            }
+          }
+        }
+        const agents = Array.from(agentMap.entries()).map(([agent, stats]) => ({
+          agent, total_actions: stats.total_actions, initiatives_count: stats.initiatives_count,
+        }))
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(agents))
+        return
+      }
+
+      // ── Static SPA ──────────────────────────────────────────────────────────
+      const filePath = path === '/' ? join(staticDir, 'index.html') : join(staticDir, path)
+      if (existsSync(filePath)) {
+        const ext = extname(filePath)
+        res.writeHead(200, { 'Content-Type': MIME[ext] ?? 'application/octet-stream' })
+        res.end(readFileSync(filePath))
+        return
+      }
+      // SPA fallback
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+      res.end(readFileSync(join(staticDir, 'index.html')))
+    })
+
+    server.listen(port, () => {
+      const url = `http://localhost:${port}`
+      console.log(`Dashboard: ${url}`)
+      if (opts.open !== false) {
+        import('node:child_process').then((cp) => {
+          cp.exec(`open "${url}"`)
+        })
+      }
+    })
+  })
 
 program.parse(process.argv)
