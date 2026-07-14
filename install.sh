@@ -552,6 +552,15 @@ echo "    2. $VERIFY_HINT"
 echo "    3. Ask pm-lead anything — it classifies and routes to specialist agents."
 echo ""
 
+# MCP server hint (visible right after "Next:")
+if $WITH_MCP; then
+  echo "  ${BOLD}MCP: Start the harness server:${RESET}"
+  echo "    $OC_ROOT/pm-ahk-start"
+  dim "    or: python3 $OC_ROOT/pm-ahk-server.py --port 5431 --db $OC_ROOT/.harness/harness.db"
+  echo "    ${DIM}Then check:${RESET} $OC_ROOT/pm-ahk status"
+  echo ""
+fi
+
 # Project-scope gitignore hint
 if [[ "$SCOPE" == "project" ]]; then
   yellow "  ⚠ Project-local install. Add to .gitignore:"
@@ -564,18 +573,6 @@ echo "    \"Write a PRD for checkout v2\""
 echo "    \"Research our churn problem\""
 echo "    \"Am I ready for a Director role?\""
 echo ""
-
-# MCP server hint
-if $WITH_MCP; then
-  echo "  ${BOLD}MCP Harness:${RESET}"
-  if [[ -f "$OC_ROOT/pm-ahk-start" ]]; then
-    echo "    Start: $OC_ROOT/pm-ahk-start"
-  else
-    echo "    Start: python3 $OC_ROOT/pm-ahk-server.py --port 5431 --db $OC_ROOT/.harness/harness.db"
-  fi
-  echo "    Status: $OC_ROOT/pm-ahk status"
-  echo ""
-fi
 
 # Show update hint if flag exists
 if [[ -f "$UPDATE_FLAG" ]]; then
