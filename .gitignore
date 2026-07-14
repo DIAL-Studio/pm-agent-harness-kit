@@ -229,3 +229,4 @@ docs/marketplace/
 .harness/harness.db
 .harness/current.md
 *.png
+dashboard/node_modules/
