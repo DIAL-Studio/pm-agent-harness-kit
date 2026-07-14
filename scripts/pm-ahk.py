@@ -7,6 +7,7 @@ Requires: Python >= 3.8 (stdlib only: sqlite3, json, sys, os, argparse, datetime
 Usage:
   pm-ahk init [--scope global|project]   Interactive harness setup
   pm-ahk serve                            Start MCP server (stdio JSON-RPC)
+  pm-ahk serve-http [--port 5431]          Start MCP server (HTTP — requires flask)
   pm-ahk status                           Show initiative backlog
   pm-ahk initiative add                   Interactively add to backlog
   pm-ahk initiative list [--status <s>]   List initiatives
@@ -121,25 +122,48 @@ def init_db(db_path: str | Path) -> None:
     conn.close()
 
 
-# ── MCP Protocol (JSON-RPC over stdio) ───────────────────────────────────────
+# ── MCP Protocol (JSON-RPC over stdio, binary I/O) ───────────────────────────
 
 def mcp_read() -> dict | None:
-    header = sys.stdin.readline()
-    if not header:
+    """Read a JSON-RPC message from stdin (binary mode)."""
+    try:
+        # Read header: "Content-Length: N\r\n"
+        header = b""
+        while True:
+            ch = sys.stdin.buffer.read(1)
+            if not ch:
+                return None  # EOF
+            if ch == b"\r":
+                # Consume the \n
+                sys.stdin.buffer.read(1)
+                break
+            header += ch
+
+        if not header.startswith(b"Content-Length:"):
+            return None
+
+        length = int(header.split(b":")[1].strip())
+        # Read blank line \r\n
+        sys.stdin.buffer.read(2)
+        # Read exactly N bytes of JSON body
+        body = b""
+        while len(body) < length:
+            chunk = sys.stdin.buffer.read(length - len(body))
+            if not chunk:
+                return None  # EOF
+            body += chunk
+
+        return json.loads(body.decode("utf-8"))
+    except Exception:
         return None
-    if not header.startswith("Content-Length:"):
-        return None
-    length = int(header.split(":")[1].strip())
-    # Skip the blank line
-    sys.stdin.readline()
-    body = sys.stdin.read(length)
-    return json.loads(body)
 
 
 def mcp_send(obj: dict) -> None:
-    body = json.dumps(obj)
-    sys.stdout.write(f"Content-Length: {len(body)}\r\n\r\n{body}")
-    sys.stdout.flush()
+    """Send a JSON-RPC message to stdout (binary mode)."""
+    body = json.dumps(obj).encode("utf-8")
+    sys.stdout.buffer.write(f"Content-Length: {len(body)}\r\n\r\n".encode())
+    sys.stdout.buffer.write(body)
+    sys.stdout.buffer.flush()
 
 
 # ── Tool handlers ────────────────────────────────────────────────────────────
@@ -631,6 +655,10 @@ def main() -> None:
 
     serve_p = sub.add_parser("serve", help="Start MCP server (stdio JSON-RPC)")
     serve_p.add_argument("--db", help="Path to harness.db")
+    http_p = sub.add_parser("serve-http", help="Start MCP server over HTTP (requires flask)")
+    http_p.add_argument("--port", type=int, default=5431, help="HTTP port (default: 5431)")
+    http_p.add_argument("--host", default="127.0.0.1", help="Bind address")
+    http_p.add_argument("--db", help="Path to harness.db")
     init_p = sub.add_parser("init", help="Initialize harness database")
     init_p.add_argument("--scope", choices=["global", "project"], default="global",
                         help="Install scope (default: global)")
@@ -675,6 +703,11 @@ def main() -> None:
     elif opts.command == "dashboard":
         init_db(db_path)
         cmd_dashboard(db_path, port=opts.port, no_open=opts.no_open)
+    elif opts.command == "serve-http":
+        server_script = Path(__file__).resolve().parent / "pm-ahk-server.py"
+        import subprocess as _sp
+        _sp.run(["python3", str(server_script), "--port", str(opts.port),
+                 "--host", opts.host, "--db", str(db_path)])
 
 
 if __name__ == "__main__":

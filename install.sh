@@ -468,22 +468,22 @@ if $WITH_MCP; then
       # Initialize harness
       python3 "$OC_ROOT/pm-ahk.py" init --scope "$SCOPE" 2>&1 | tail -n +2
 
-      # Register MCP server in opencode.json
+      # Register MCP server in opencode.json (HTTP MCP)
       if [[ "$RUNTIME" == "opencode" && -f "$OC_ROOT/opencode.json" ]]; then
         python3 <<- PYEOF
 import json
 cfg = json.load(open("${OC_ROOT}/opencode.json"))
 cfg.setdefault("mcp", {})["pm-ahk"] = {
-    "type": "local",
-    "command": ["python3", "${OC_ROOT}/pm-ahk.py", "serve", "--db", "${OC_ROOT}/.harness/harness.db"],
+    "type": "remote",
+    "url": "http://127.0.0.1:5431",
     "enabled": True
 }
 json.dump(cfg, open("${OC_ROOT}/opencode.json", "w"), indent=2)
 PYEOF
-        green "  MCP server registered in opencode.json"
+        green "  MCP server registered in opencode.json (HTTP MCP)"
       fi
 
-      # Register MCP server for Claude Code (~/.claude.json)
+      # Register MCP server for Claude Code (~/.claude.json) — HTTP MCP
       CC_CFG="$HOME/.claude.json"
       if [[ "$RUNTIME" == "claude-code" || ! -f "$OC_ROOT/opencode.json" ]]; then
         python3 <<- PYEOF
@@ -492,11 +492,24 @@ path = os.path.expanduser("~/.claude.json")
 cfg = json.load(open(path)) if os.path.exists(path) else {}
 cfg.setdefault("mcpServers", {})["pm-ahk"] = {
     "command": "python3",
-    "args": ["${OC_ROOT}/pm-ahk.py", "serve", "--db", "${OC_ROOT}/.harness/harness.db"]
+    "args": ["${OC_ROOT}/pm-ahk-server.py", "--port", "5431", "--host", "127.0.0.1",
+             "--db", "${OC_ROOT}/.harness/harness.db"]
 }
 json.dump(cfg, open(path, "w"), indent=2)
 PYEOF
         green "  MCP server registered for Claude Code (~/.claude.json)"
+      fi
+
+      # Copy HTTP MCP server script
+      if [[ -f "$EXTRACTED_DIR/scripts/pm-ahk-server.py" ]]; then
+        cp "$EXTRACTED_DIR/scripts/pm-ahk-server.py" "$OC_ROOT/pm-ahk-server.py"
+        green "  HTTP MCP server installed"
+
+        # Try to install flask
+        if ! python3 -c "import flask" 2>/dev/null; then
+          yellow "  Flask not found. Installing..."
+          pip3 install flask 2>/dev/null || pip install flask 2>/dev/null || yellow "  Could not install Flask. Run 'pip install flask' manually."
+        fi
       fi
 
       green "  MCP harness installed"
