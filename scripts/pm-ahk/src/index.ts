@@ -1,6 +1,7 @@
 import { Command } from 'commander'
 import { resolve, join, dirname, extname } from 'node:path'
 import { existsSync, readFileSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'node:http'
 import { PmAhkDB } from './core/db'
@@ -9,6 +10,15 @@ import { startMcpServer } from './core/mcp-server'
 const VERSION = '2.2.0'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+function resolveDbPath(dbOpt?: string): string {
+  if (dbOpt) return dbOpt
+  // Default: use global path (MCP server is configured with --db global)
+  const global = resolve(homedir(), '.config', 'opencode', '.harness', 'harness.db')
+  if (existsSync(global)) return global
+  // Fallback: local project path
+  return resolve(process.cwd(), '.harness', 'harness.db')
+}
 
 const program = new Command()
 
@@ -19,7 +29,7 @@ program
   .description('Start the MCP server (stdio)')
   .option('--db <path>', 'Path to the SQLite database')
   .action(async (opts) => {
-    const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
+    const dbPath = resolveDbPath(opts.db)
     process.stderr.write(`[pm-ahk] MCP server starting (stdio)\n`)
     try {
       const db = new PmAhkDB(dbPath)
@@ -36,7 +46,7 @@ program
   .option('--db <path>', 'Path to the SQLite database')
   .option('--json', 'Output as JSON')
   .action(async (opts) => {
-    const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
+    const dbPath = resolveDbPath(opts.db)
     const db = new PmAhkDB(dbPath)
     const initiatives = db.listInitiatives()
     if (opts.json) {
@@ -67,7 +77,7 @@ program
       .option('--db <path>')
       .option('--status <status>')
       .action(async (opts) => {
-        const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
+        const dbPath = resolveDbPath(opts.db)
         const db = new PmAhkDB(dbPath)
         const initiatives = db.listInitiatives(opts.status)
         console.log(JSON.stringify(initiatives, null, 2))
@@ -80,7 +90,7 @@ program
       .argument('<title>', 'Initiative title')
       .option('--db <path>')
       .action(async (title, opts) => {
-        const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
+        const dbPath = resolveDbPath(opts.db)
         const db = new PmAhkDB(dbPath)
         const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 50)
         const initiative = db.createInitiative(slug, title)
@@ -94,7 +104,7 @@ program
       .argument('<id>', 'Initiative ID or slug')
       .option('--db <path>')
       .action(async (id, opts) => {
-        const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
+        const dbPath = resolveDbPath(opts.db)
         const db = new PmAhkDB(dbPath)
         const idNum = parseInt(id, 10)
         if (isNaN(idNum)) {
@@ -114,7 +124,7 @@ program
   .option('--db <path>', 'Path to the SQLite database')
   .option('--no-open', 'Do not open browser')
   .action(async (opts) => {
-    const dbPath = opts.db ?? resolve(process.cwd(), '.harness', 'harness.db')
+    const dbPath = resolveDbPath(opts.db)
     const port = parseInt(opts.port, 10)
     const db = new PmAhkDB(dbPath)
     const candidates = [
